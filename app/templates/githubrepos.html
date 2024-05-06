@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repositories</title>
+</head>
+<body>
+    <h1>GitHub Repositories</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>URL</th>
+                <th>Owner</th>
+                <th>Access</th>
+                <th>Language</th>
+                <th>Contributors</th>
+                <th>Topics</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for repo in repos %}
+            <tr>
+                <td>{{ repo.name }}</td>
+                <td>{{ repo.description }}</td>
+                <td><a href="{{ repo.html_url }}" target="_blank">{{ repo.html_url }}</a></td>
+                <td>{{ repo.owner.login }}</td>
+                <td>{{ "Private" if repo.private else "Public" }}</td>
+                <td>{{ repo.language }}</td>
+                <td>{{ ', '.join(repo.contributors) }}</td>
+                <td>{{ ', '.join(repo.topics) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,5 +1,7 @@
 from flask import render_template, request, redirect, url_for
 from app import app
+from ghapi.all import GhApi
+import os
 
 # Sample data for projects
 projects = [
@@ -53,3 +55,18 @@ def delete(index):
     del projects[index]
     return redirect(url_for('index'))
 
+@app.route('/githubrepos')
+def github_repos():
+    gh = GhApi()
+    token = os.environ.get('GH_TOKEN')
+    gh = GhApi(token=token)
+
+    org = 'Research-Center-Data-Intelligence'
+
+    repos = gh.repos.list_for_org(org)
+
+    for repo in repos:
+        contributors = gh.repos.list_contributors(owner=org, repo=repo.name)
+        repo.contributors = [contributor.login for contributor in contributors]
+
+    return render_template('githubrepos.html', repos=repos)
