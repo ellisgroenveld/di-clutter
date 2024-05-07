@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Edit Table Structure</h1>
+    <table>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Action</th>
+        </tr>
+        {% for column in columns %}
+            <tr>
+                <td>{{ column[1] }}</td>  <!-- Displaying column name -->
+                <td>{{ column[2] }}</td>  <!-- Displaying column data type -->
+                <td>
+                    <a href="{{ url_for('edit_column', column_name=column[1]) }}">Edit</a> |
+                    <form action="{{ url_for('delete_column', column_name=column[1]) }}" method="post">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('add_column') }}">Add Column</a>
+{% endblock %}

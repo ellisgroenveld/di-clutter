@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Add New Column</h1>
+    <form action="{{ url_for('add_column') }}" method="post">
+        <label for="new_column_name">Column Name:</label>
+        <input type="text" id="new_column_name" name="new_column_name" required><br><br>
+
+        <label for="new_data_type">Data Type:</label>
+        <select id="new_data_type" name="new_data_type">
+            {% for data_type in sqlite_data_types %}
+                <option value="{{ data_type }}">{{ data_type }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Add Column</button>
+    </form>
+{% endblock %}

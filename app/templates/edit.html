@@ -1,17 +1,3 @@
-
-<body>
-    <h1>Edit Project</h1>
-    <form method="post">
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" value="{{ project['title'] }}"><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description" rows="4" cols="50">{{ project['description'] }}</textarea><br>
-        <button type="submit">Submit</button>
-    </form>
-</body>
-
-
-
 {% extends 'base.html' %}
 
 {% block title %}Edit Project - DI Clutter{% endblock %}
@@ -19,12 +5,19 @@
 {% block content %}
 <body>
     <h1>Edit Project</h1>
-    <form method="post">
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" value="{{ project['title'] }}"><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description" rows="4" cols="50">{{ project['description'] }}</textarea><br>
-        <button type="submit">Submit</button>
+    <form method="POST" action="{{ url_for('edit', id=project['id']) }}">
+        {% for column in columns %}
+            {% if column['name'] != 'id' %}
+                <label for="{{ column['name'] }}">{{ column['name'] }}:</label>
+                {% if column['type'] == 'TEXT' %}
+                    <textarea id="{{ column['name'] }}" name="{{ column['name'] }}">{{ project[column['name']] }}</textarea>
+                {% else %}
+                    <input type="text" id="{{ column['name'] }}" name="{{ column['name'] }}" value="{{ project[column['name']] }}">
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        <button type="submit">Save Changes</button>
     </form>
+    
 </body>
 {% endblock %}

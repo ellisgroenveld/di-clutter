@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Edit Column "{{ column_name }}"</h1>
+    <form action="{{ url_for('edit_column', column_name=column_name) }}" method="post">
+        <label for="new_column_name">New Column Name:</label>
+        <input type="text" id="new_column_name" name="new_column_name" required><br><br>
+
+        <label for="new_data_type">New Data Type:</label>
+        <select id="new_data_type" name="new_data_type">
+            {% for data_type in sqlite_data_types %}
+                <option value="{{ data_type }}" {% if column_info.type == data_type %} selected {% endif %}>{{ data_type }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Save Changes</button>
+    </form>
+{% endblock %}
