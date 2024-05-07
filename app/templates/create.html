@@ -7,25 +7,13 @@
 </head>
 <body>
     <h1>Create Project</h1>
-    <form action="/create" method="post">
-        <label for="Titel">Titel:</label><br>
-        <input type="text" id="Titel" name="Titel"><br>
-        <label for="achtergrond">Achtergrond:</label><br>
-<textarea id="achtergrond" name="achtergrond" rows="4" cols="50"></textarea><br>
-
-<label for="doelstelling">Doelstelling:</label><br>
-<textarea id="doelstelling" name="doelstelling" rows="4" cols="50"></textarea><br>
-
-<label for="beoogd_resultaat">Beoogd Resultaat:</label><br>
-<textarea id="beoogd_resultaat" name="beoogd_resultaat" rows="4" cols="50"></textarea><br>
-
-        <label for="overkoepelend_project">overkoepelend project:</label><br>
-        <input type="text" id="overkoepelend_project" name="overkoepelend_project"><br>
-        <label for="onderwijs">Onderwijs:</label><br>
-        <input type="text" id="onderwijs" name="onderwijs"><br>
-        <label for="opmerkingen">Opmerkingen:</label><br>
-        <input type="text" id="opmerkingen" name="opmerkingen"><br><br>
-        <input type="submit" value="Submit">
+    <form method="post">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50"></textarea><br>
+        <button type="submit">Submit</button>
     </form>
+    
 </body>
 </html>

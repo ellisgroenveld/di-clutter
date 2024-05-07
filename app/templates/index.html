@@ -7,41 +7,18 @@
 </head>
 <body>
     <h1>Project List</h1>
-    <a href="{{ url_for('create') }}"><button>Create New Project</button></a>
+    <ul>
+        {% for project in projects %}
+            <li>
+                <strong>{{ project.title }}</strong>: {{ project.description }}
+                <a href="{{ url_for('edit', id=project.id) }}">Edit</a>
+                <form action="{{ url_for('delete', id=project.id) }}" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('create') }}">Create New Project</a>
     <a href="{{ url_for('github_repos') }}"><button>View GitHub Repositories</button></a>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Titel</th>
-                <th>Achtergrond</th>
-                <th>Doelstelling</th>
-                <th>Beoogd Resultaat</th>
-                <th>Overkoepelend Project</th>
-                <th>Onderwijs</th>
-                <th>Opmerkingen</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for project in projects %}
-            <tr>
-                <td>{{ project['Titel'] }}</td>
-                <td>{{ project['achtergrond'] }}</td>
-                <td>{{ project['doelstelling'] }}</td>
-                <td>{{ project['beoogd_resultaat'] }}</td>
-                <td>{{ project['overkoepelend_project'] }}</td>
-                <td>{{ project['onderwijs'] }}</td>
-                <td>{{ project['opmerkingen'] }}</td>
-                <td><a href="{{ url_for('edit', index=loop.index0) }}">Edit</a></td>
-                <td>
-                    <form action="{{ url_for('delete', index=loop.index0) }}" method="post">
-                        <button type="submit">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 </body>
 </html>

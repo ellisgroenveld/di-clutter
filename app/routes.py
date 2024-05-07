@@ -1,67 +1,85 @@
 from flask import render_template, request, redirect, url_for
 from app import app
+import sqlite3
 from ghapi.all import GhApi
 import os
 
-# Sample data for projects
-projects = [
-    {
-        "Titel": "Project 1",
-        "achtergrond": "Background 1",
-        "doelstelling": "Goal 1",
-        "beoogd_resultaat": "Expected Result 1",
-        "overkoepelend_project": "Parent Project 1",
-        "onderwijs": "Education 1",
-        "opmerkingen": "Comments 1"
-    },
-    {
-        "Titel": "Project 2",
-        "achtergrond": "Background 2",
-        "doelstelling": "Goal 2",
-        "beoogd_resultaat": "Expected Result 2",
-        "overkoepelend_project": "Parent Project 2",
-        "onderwijs": "Education 2",
-        "opmerkingen": "Comments 2"
-    }
-]
+def get_db_connection():
+    conn = sqlite3.connect('your_database.db')
+    conn.row_factory = sqlite3.Row
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS projects (
+            id INTEGER PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL
+        )
+    ''')
+    return conn
+
 
 @app.route('/')
 def index():
+    conn = get_db_connection()
+    projects = conn.execute('SELECT * FROM projects').fetchall()
+    conn.close()
     return render_template('index.html', projects=projects)
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     if request.method == 'POST':
-        new_project = {}
-        for field in ['Titel', 'achtergrond', 'doelstelling', 'beoogd_resultaat', 'overkoepelend_project', 'onderwijs', 'opmerkingen']:
-            new_project[field] = request.form[field]
-        projects.append(new_project)
-        return redirect(url_for('index'))
-    return render_template('create.html')
+        conn = get_db_connection()
+        name = request.form['title'] 
+        description = request.form['description']
+        private = True  
+        auto_init = True  
 
-@app.route('/edit/<int:index>', methods=['GET', 'POST'])
-def edit(index):
-    project = projects[index]
+        
+        gh = GhApi(token=os.environ.get('GH_TOKEN2'))
+        org = 'DIClutter' 
+        gh.repos.create_in_org(org, name=name, description=description, private=private, auto_init=auto_init)
+
+        conn.execute('INSERT INTO projects (title, description) VALUES (?, ?)',
+                     [name, description])
+        conn.commit()
+        conn.close()
+        return redirect(url_for('index'))
+    else:
+        return render_template('create.html')
+
+
+
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit(id):
+    conn = get_db_connection()
+    project = conn.execute('SELECT * FROM projects WHERE id = ?', (id,)).fetchone()
+    conn.close()
     if request.method == 'POST':
-        for field in ['Titel', 'achtergrond', 'doelstelling', 'beoogd_resultaat', 'overkoepelend_project', 'onderwijs', 'opmerkingen']:
-            project[field] = request.form[field]
+        conn = get_db_connection()
+        conn.execute('UPDATE projects SET title = ?, description = ? WHERE id = ?',
+                     [request.form['title'], request.form['description'], id])
+        conn.commit()
+        conn.close()
         return redirect(url_for('index'))
-    return render_template('edit.html', project=project, index=index)
+    else:
+        return render_template('edit.html', project=project)
 
-
-
-@app.route('/delete/<int:index>', methods=['POST'])
-def delete(index):
-    del projects[index]
+@app.route('/delete/<int:id>', methods=['POST'])
+def delete(id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM projects WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
     return redirect(url_for('index'))
 
 @app.route('/githubrepos')
 def github_repos():
     gh = GhApi()
-    token = os.environ.get('GH_TOKEN')
+
+    token = os.environ.get('GH_TOKEN2')
+
     gh = GhApi(token=token)
 
-    org = 'Research-Center-Data-Intelligence'
+    org = 'DIClutter'
 
     repos = gh.repos.list_for_org(org)
 
