@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Project</title>
-</head>
+{% extends 'base.html' %}
+
+{% block title %}Create Project - DI Clutter{% endblock %}
+
+{% block content %}
 <body>
     <h1>Create Project</h1>
     <form method="post">
@@ -14,6 +12,5 @@
         <textarea id="description" name="description" rows="4" cols="50"></textarea><br>
         <button type="submit">Submit</button>
     </form>
-    
 </body>
-</html>
+{% endblock %}

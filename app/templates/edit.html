@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Project</title>
-</head>
+
 <body>
     <h1>Edit Project</h1>
     <form method="post">
@@ -15,4 +9,22 @@
         <button type="submit">Submit</button>
     </form>
 </body>
-</html>
+
+
+
+{% extends 'base.html' %}
+
+{% block title %}Edit Project - DI Clutter{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Edit Project</h1>
+    <form method="post">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title" value="{{ project['title'] }}"><br>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50">{{ project['description'] }}</textarea><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+{% endblock %}
