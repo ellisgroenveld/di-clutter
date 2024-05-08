@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
+
+{% block title %}Create Project - DI Clutter{% endblock %}
+
 {% block content %}
-  <h2>Create Project</h2>
-  <form method="post">
-    {% for column in column_names %}
-      {% if column != 'id' %}
-        <div class="form-group">
-          <label for="{{ column }}">{{ column.capitalize() }}</label>
-          <input type="text" class="form-control" id="{{ column }}" name="{{ column }}" required>
-        </div>
-      {% endif %}
-    {% endfor %}
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
+<body>
+    <h1>Create Project</h1>
+    <form method="post">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50"></textarea><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
 {% endblock %}
