@@ -1,30 +1,14 @@
-
-<body>
-    <h1>Edit Project</h1>
-    <form method="post">
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" value="{{ project['title'] }}"><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description" rows="4" cols="50">{{ project['description'] }}</textarea><br>
-        <button type="submit">Submit</button>
-    </form>
-</body>
-
-
-
 {% extends 'base.html' %}
 
-{% block title %}Edit Project - DI Clutter{% endblock %}
+{% block title %}Edit Project{% endblock %}
 
 {% block content %}
-<body>
     <h1>Edit Project</h1>
-    <form method="post">
+    <form action="{{ url_for('edit', id=project._id) }}" method="POST">
         <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" value="{{ project['title'] }}"><br>
+        <input type="text" id="title" name="title" value="{{ project.title }}"><br>
         <label for="description">Description:</label><br>
-        <textarea id="description" name="description" rows="4" cols="50">{{ project['description'] }}</textarea><br>
-        <button type="submit">Submit</button>
+        <textarea id="description" name="description">{{ project.description }}</textarea><br>
+        <button type="submit">Save Changes</button>
     </form>
-</body>
 {% endblock %}
