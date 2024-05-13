@@ -7,8 +7,12 @@
     <form action="{{ url_for('edit', id=project._id) }}" method="POST">
         <label for="title">Title:</label><br>
         <input type="text" id="title" name="title" value="{{ project.title }}"><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description">{{ project.description }}</textarea><br>
+        <label for="aanleiding">aanleiding:</label><br>
+        <textarea id="aanleiding" name="aanleiding">{{ project.aanleiding }}</textarea><br>
+        <label for="doelstelling">doelstelling:</label><br>
+        <textarea id="doelstelling" name="doelstelling">{{ project.doelstelling }}</textarea><br>
+        <label for="beoogd_resultaat">beoogd_resultaat:</label><br>
+        <textarea id="beoogd_resultaat" name="beoogd_resultaat">{{ project.beoogd_resultaat }}</textarea><br>
         <button type="submit">Save Changes</button>
     </form>
 {% endblock %}

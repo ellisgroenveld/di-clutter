@@ -7,8 +7,14 @@
     <form action="{{ url_for('create') }}" method="POST">
         <label for="title">Title:</label><br>
         <input type="text" id="title" name="title"><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description"></textarea><br>
+        <label for="aanleiding">aanleiding:</label><br>
+        <textarea id="aanleiding" name="aanleiding"></textarea><br>
+        <label for="doelstelling">doelstelling:</label><br>
+        <textarea id="doelstelling" name="doelstelling"></textarea><br>
+        <label for="beoogd_resultaat">beoogd_resultaat:</label><br>
+        <textarea id="beoogd_resultaat" name="beoogd_resultaat"></textarea><br>
+        <label for="a">Placeholder:</label><br>
+        <textarea id="a" name="a"></textarea><br>
         <button type="submit">Create</button>
     </form>
 {% endblock %}
