@@ -111,19 +111,21 @@ def create():
 @app.route('/edit_project/<string:id>', methods=['GET', 'POST'])
 def edit_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
-    configurations = db.configurations.find({'inuse': True})  # Fetch configurations where inuse=True
+    configurations = db.configurations.find()  # Fetch all configurations
     if request.method == 'POST':
         # Iterate over configurations to dynamically collect form data
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
-            attribute_type = config['type']
-            if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
-                dynamic_fields[attribute_name] = request.form.get(attribute_name)
+            if attribute_name in project:
+                attribute_type = config['type']
+                if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
+                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
         db.projects.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
         return redirect(url_for('index'))
     else:
         return render_template('edit_project.html', project=project, configurations=configurations)
+
 
 
 @app.route('/delete/<string:id>', methods=['POST'])

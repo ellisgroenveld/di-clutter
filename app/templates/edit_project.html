@@ -11,32 +11,28 @@
                     <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
                     <textarea id="{{ key }}" name="{{ key }}">{{ value }}</textarea><br>
                 {% else %}
-                    {% if key in configurations %}
-                        {% if configurations[key].type == "String" %}
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
-                            <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
-                        {% elif configurations[key].type == "Integer" %}
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
-                            <input type="number" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
-                        {% elif configurations[key].type == "Double" %}
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
-                            <input type="number" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
-                        {% elif configurations[key].type == "Boolean" %}
-                            <input type="checkbox" id="{{ key }}" name="{{ key }}" {% if value %} checked {% endif %}>
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}</label><br>
-                        {% elif configurations[key].type == "Date" %}
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
-                            <input type="date" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
-                        {% elif configurations[key].type == "ObjectId" %}
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
-                            <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
-                        {% elif configurations[key].type == "Array" %}
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
-                            <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
-                        {% elif configurations[key].type == "Binary Data" %}
-                            <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
-                            <input type="file" id="{{ key }}" name="{{ key }}"><br>
-                        {% endif %}
+                    {% set input_type = 'text' %}
+                    {% if key.endswith('_date') %}
+                        {% set input_type = 'date' %}
+                    {% elif key.endswith('_id') %}
+                        {% set input_type = 'text' %}
+                    {% elif key.endswith('_array') %}
+                        {% set input_type = 'text' %}
+                    {% elif key.endswith('_binary_data') %}
+                        {% set input_type = 'file' %}
+                    {% elif key.endswith('_bool') %}
+                        {% set input_type = 'checkbox' %}
+                    {% elif key.endswith('_int') %}
+                        {% set input_type = 'number' %}
+                    {% elif key.endswith('_double') %}
+                        {% set input_type = 'number' %}
+                    {% endif %}
+                    <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
+                    {% if input_type == 'checkbox' %}
+                        <input type="{{ input_type }}" id="{{ key }}" name="{{ key }}" {% if value %} checked {% endif %}>
+                        <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}</label><br>
+                    {% else %}
+                        <input type="{{ input_type }}" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
                     {% endif %}
                 {% endif %}
             {% endif %}
