@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Configuration{% endblock %}
+
+{% block content %}
+    <h1>Edit Configuration</h1>
+    <form action="{{ url_for('editconfig', id=configuration._id) }}" method="POST">
+        <label for="attributename">Attribute Name:</label>
+        <input type="text" id="attributename" name="attributename" value="{{ configuration.name }}" required><br><br>
+        
+        <select id="attributetype" name="attributetype" required>
+            {% for bson_type in bson_types %}
+                {% if bson_type == configuration.type %}
+                    <option value="{{ bson_type }}" selected>{{ bson_type }}</option>
+                {% else %}
+                    <option value="{{ bson_type }}">{{ bson_type }}</option>
+                {% endif %}
+            {% endfor %}
+        </select> <br> <br>
+        
+        <input type="checkbox" id="inuse_checkbox" name="inuse" {% if configuration.inuse %}checked{% endif %}> <!-- Checkbox input -->
+        <label for="inuse_checkbox">In Gebruik</label>
+
+        
+        <br><br>
+        
+        <button type="submit">Create Configuration</button>
+    </form>
+{% endblock %}

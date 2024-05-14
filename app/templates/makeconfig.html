@@ -12,7 +12,13 @@
             {% for bson_type in bson_types %}
                 <option value="{{ bson_type }}">{{ bson_type }}</option>
             {% endfor %}
-        </select><br><br>
+        </select> <br> <br>
+        
+        <input type="checkbox" id="inuse_checkbox" name="inuse" checked> <!-- Checkbox input -->
+        <label for="inuse_checkbox">In Gebruik</label>
+
+        
+        <br><br>
         
         <button type="submit">Create Configuration</button>
     </form>

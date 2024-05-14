@@ -17,21 +17,8 @@ bson_types = [
     "Array",
     "Binary Data",
     "Undefined",
-    "Object",
-    "Null",
-    "Regular Expression",
-    "JavaScript",
-    "Symbol",
-    "JavaScript with Scope",
-    "32-bit Integer",
-    "Timestamp",
-    "64-bit Integer",
-    "Decimal128",
-    "Min Key",
-    "Max Key"
+    "Null"
 ]
-
-
 
 # Load MongoDB credentials from environment variables
 mongodb_username = os.environ.get('MONGODB_USERNAME')
@@ -68,11 +55,39 @@ def index():
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
+    configurations = db.configurations.find({'inuse': True})  # Fetch configurations where inuse=True
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
         doelstelling = request.form['doelstelling']
         beoogd_resultaat = request.form['beoogd_resultaat']
+        
+        # Iterate over configurations to dynamically collect form data
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form.getlist(attribute_name)
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+            
         private = True
         auto_init = True
 
@@ -86,20 +101,30 @@ def create():
 
         gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling})
+        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, **dynamic_fields})
 
         return redirect(url_for('index'))
     else:
-        return render_template('create.html')
+        return render_template('create.html', configurations=configurations)
 
-@app.route('/edit/<string:id>', methods=['GET', 'POST'])
-def edit(id):
+
+@app.route('/edit_project/<string:id>', methods=['GET', 'POST'])
+def edit_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
+    configurations = db.configurations.find({'inuse': True})  # Fetch configurations where inuse=True
     if request.method == 'POST':
-        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': request.form['title'], 'beoogd_resultaat': request.form['beoogd_resultaat'], 'aanleiding' : request.form['aanleiding'], 'doelstelling' : request.form['doelstelling']}})
+        # Iterate over configurations to dynamically collect form data
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            attribute_type = config['type']
+            if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
+                dynamic_fields[attribute_name] = request.form.get(attribute_name)
+        db.projects.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
         return redirect(url_for('index'))
     else:
-        return render_template('edit.html', project=project)
+        return render_template('edit_project.html', project=project, configurations=configurations)
+
 
 @app.route('/delete/<string:id>', methods=['POST'])
 def delete(id):
@@ -127,19 +152,36 @@ def makeconfig():
     if request.method == "POST":
         attribute_name = request.form["attributename"]
         attribute_type = request.form["attributetype"]
-        db.configurations.insert_one({'name': attribute_name, 'type': attribute_type})
+        attribute_inuse = request.form.get("inuse", False)  # Get the value of inuse from the form
+        # Convert attribute_inuse to boolean
+        if attribute_inuse == "on":
+            attribute_inuse = True
+        else:
+            attribute_inuse = False
+        db.configurations.insert_one({'name': attribute_name, 'type': attribute_type, 'inuse': attribute_inuse})
         return redirect(url_for('configuration'))
     else:
         return render_template('makeconfig.html', bson_types=bson_types)
-    
+
 
 @app.route('/editconfig/<string:id>', methods=['GET', 'POST'])
 def editconfig(id):
     configuration = db.configurations.find_one({'_id': ObjectId(id)})
     if request.method == 'POST':
+        attribute_inuse = request.form.get("inuse", False)  # Get the value of inuse from the form
+        # Convert attribute_inuse to boolean
+        if attribute_inuse == "on":
+            attribute_inuse = True
+        else:
+            attribute_inuse = False
+        print(attribute_inuse)
+        db.configurations.update_one({'_id': ObjectId(id)}, {'$set': {'name': request.form['attributename'], 'type': request.form['attributetype'], 'inuse' : attribute_inuse}})
         return redirect(url_for('configuration'))
     else:
-        return render_template('edit.html', configuration=configuration)
+        return render_template('editconfig.html', bson_types=bson_types, configuration=configuration)
+
+
+
 
 @app.route('/deleteconfig/<string:id>', methods=['POST'])
 def deleteconfig(id):
