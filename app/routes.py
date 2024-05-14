@@ -45,10 +45,8 @@ def index():
     df = pd.DataFrame(list(projects))
     
     table_columns = df.columns.tolist()
-    print(table_columns)
 
     table_rows = df.to_dict(orient='records')
-    print(table_rows)
 
     return render_template('index.html', table_columns=table_columns, table_rows=table_rows)
 
@@ -141,10 +139,8 @@ def configuration():
     df = pd.DataFrame(list(configurations))
     
     table_columns = df.columns.tolist()
-    print(table_columns)
 
     table_rows = df.to_dict(orient='records')
-    print(table_rows)
 
     return render_template('configuration.html', table_columns=table_columns, table_rows=table_rows)
 
@@ -176,7 +172,6 @@ def editconfig(id):
             attribute_inuse = True
         else:
             attribute_inuse = False
-        print(attribute_inuse)
         db.configurations.update_one({'_id': ObjectId(id)}, {'$set': {'name': request.form['attributename'], 'type': request.form['attributetype'], 'inuse' : attribute_inuse}})
         return redirect(url_for('configuration'))
     else:
