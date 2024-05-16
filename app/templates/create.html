@@ -36,7 +36,11 @@
                 <input type="text" id="{{ config.name }}" name="{{ config.name }}"><br>
             {% elif config.type == "Array" %}
                 <label for="{{ config.name }}">{{ config.name }}:</label><br>
-                <input type="text" id="{{ config.name }}" name="{{ config.name }}"><br>
+                <select name="{{ config.name }}">
+                    {% for option in config.ArrayContents %}
+                        <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                </select><br>
             {% elif config.type == "Binary Data" %}
                 <label for="{{ config.name }}">{{ config.name }}:</label><br>
                 <input type="file" id="{{ config.name }}" name="{{ config.name }}"><br>
@@ -46,7 +50,7 @@
                 <!-- No input required for null -->
             {% endif %}
         {% endfor %}
-        
+        <br>
         <button type="submit">Create</button>
     </form>
 {% endblock %}

@@ -2,24 +2,60 @@
 {% block title %}Make Configuration{% endblock %}
 
 {% block content %}
-    <h1>Make Configuration</h1>
-    <form method="POST" action="{{ url_for('makeconfig') }}">
-        <label for="attributename">Attribute Name:</label>
-        <input type="text" id="attributename" name="attributename" required><br><br>
-        
-        <label for="attributetype">Attribute Type:</label>
-        <select id="attributetype" name="attributetype" required>
-            {% for bson_type in bson_types %}
-                <option value="{{ bson_type }}">{{ bson_type }}</option>
-            {% endfor %}
-        </select> <br> <br>
-        
-        <input type="checkbox" id="inuse_checkbox" name="inuse" checked> <!-- Checkbox input -->
-        <label for="inuse_checkbox">In Gebruik</label>
+<h1>Make Configuration</h1>
+<form method="POST" action="{{ url_for('makeconfig') }}">
+    <label for="attributename">Attribute Name:</label>
+    <input type="text" id="attributename" name="attributename" required><br><br>
 
-        
-        <br><br>
-        
-        <button type="submit">Create Configuration</button>
-    </form>
+    <input type="checkbox" id="inuse_checkbox" name="inuse" checked> <!-- Checkbox input -->
+    <label for="inuse_checkbox">In Gebruik</label> <br><br>
+
+    <label for="attributetype">Attribute Type:</label>
+    <select id="attributetype" name="attributetype" required>
+        {% for bson_type in bson_types %}
+        <option value="{{ bson_type }}">{{ bson_type }}</option>
+        {% endfor %}
+    </select> <br> <br>
+
+    <div id="array_input_container" style="display: none;">
+        <label for="array_contents">Array Contents:</label>
+        <div id="array_contents_container">
+            <input type="text" name="array_contents" required>
+        </div>
+        <br>
+        <button type="button" id="add_array_field">Add Another Entry</button>
+    </div>
+
+    <script>
+        document.getElementById('attributetype').addEventListener('change', function() {
+            var selectedValue = this.value;
+            if (selectedValue === 'Array') {
+                document.getElementById('array_input_container').style.display = 'block';
+            } else {
+                document.getElementById('array_input_container').style.display = 'none';
+            }
+        });
+    
+        document.getElementById('add_array_field').addEventListener('click', function() {
+            var container = document.createElement('div'); // Create a container for the new input field
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'array_contents';
+            input.required = true;
+            container.appendChild(input); // Append the input field to the container
+            // Add a line break after each new input field
+            var lineBreak = document.createElement('br');
+            container.appendChild(lineBreak);
+            document.getElementById('array_contents_container').appendChild(container); // Append the container to the main container
+        });
+    </script>
+    
+    
+
+
+
+    <br><br>
+
+    <button type="submit">Create Configuration</button>
+</form>
 {% endblock %}

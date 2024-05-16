@@ -78,7 +78,7 @@ def create():
             elif attribute_type == 'ObjectId':
                 dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
             elif attribute_type == 'Array':
-                dynamic_fields[attribute_name] = request.form.getlist(attribute_name)
+                dynamic_fields[attribute_name] = request.form[attribute_name]
             elif attribute_type == 'Binary Data':
                 dynamic_fields[attribute_name] = request.files[attribute_name].read()
             elif attribute_type == 'Undefined':
@@ -151,15 +151,24 @@ def makeconfig():
         attribute_name = request.form["attributename"]
         attribute_type = request.form["attributetype"]
         attribute_inuse = request.form.get("inuse", False)  # Get the value of inuse from the form
+        
         # Convert attribute_inuse to boolean
         if attribute_inuse == "on":
             attribute_inuse = True
         else:
             attribute_inuse = False
-        db.configurations.insert_one({'name': attribute_name, 'type': attribute_type, 'inuse': attribute_inuse})
+        
+        # If attribute_type is 'Array', retrieve array contents from form
+        if attribute_type == 'Array':
+            array_contents = request.form.getlist('array_contents')
+            db.configurations.insert_one({'name': attribute_name, 'type': attribute_type, 'inuse': attribute_inuse, 'ArrayContents': array_contents})
+        else:
+            db.configurations.insert_one({'name': attribute_name, 'type': attribute_type, 'inuse': attribute_inuse})
+        
         return redirect(url_for('configuration'))
     else:
         return render_template('makeconfig.html', bson_types=bson_types)
+
 
 
 @app.route('/editconfig/<string:id>', methods=['GET', 'POST'])
