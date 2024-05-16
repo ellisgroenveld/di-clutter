@@ -8,14 +8,7 @@ from bson.objectid import ObjectId
 import pandas as pd
 from email_validator import validate_email, EmailNotValidError
 
-def is_valid_email(email):
-    try:
-        # Validate the email address
-        validate_email(email)
-        return True
-    except EmailNotValidError as e:
-        # Email is not valid, return False
-        return False
+
 
 
 bson_types = [
@@ -48,6 +41,15 @@ try:
     print("Pinged your deployment. You successfully connected to MongoDB!")
 except Exception as e:
     print(e)
+
+def is_valid_email(email):
+    try:
+        # Validate the email address
+        validate_email(email)
+        return True
+    except EmailNotValidError as e:
+        # Email is not valid, return False
+        return False
 
 @app.route('/')
 def index():
@@ -229,6 +231,32 @@ def create_onderzoeker():
         return redirect(url_for('onderzoekers'))
     else:
         return render_template('createonderzoeker.html')
+    
+
+@app.route('/edit_onderzoeker/<string:id>', methods=['GET', 'POST'])
+def edit_onderzoeker(id):
+    onderzoeker = db.onderzoekers.find_one({'_id': ObjectId(id)})
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        
+        # Validate email address
+        if not is_valid_email(email):
+            return render_template('error.html', error_message='Invalid email address.')
+        
+        # Update onderzoeker in the database
+        db.onderzoekers.update_one({'_id': ObjectId(id)}, {'$set': {'name': name, 'email': email}})
+        
+        return redirect(url_for('onderzoekers'))
+    else:
+        return render_template('editonderzoeker.html', onderzoeker=onderzoeker)
+    
+
+@app.route('/delete_onderzoeker/<string:id>', methods=['POST'])
+def delete_onderzoeker(id):
+    # Assuming db is your MongoDB database connection
+    db.onderzoekers.delete_one({'_id': ObjectId(id)})
+    return redirect(url_for('onderzoekers'))
 
 
 @app.route('/githubrepos')
