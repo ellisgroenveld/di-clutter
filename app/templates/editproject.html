@@ -17,7 +17,8 @@
                     {% elif key.endswith('_id') %}
                         {% set input_type = 'text' %}
                     {% elif key.endswith('_array') %}
-                        {% set input_type = 'text' %}
+                        {% set input_type = 'select' %}
+                        {% set select_options = configurations[configurations[key].name].ArrayContents %}
                     {% elif key.endswith('_binary_data') %}
                         {% set input_type = 'file' %}
                     {% elif key.endswith('_bool') %}
@@ -31,6 +32,12 @@
                     {% if input_type == 'checkbox' %}
                         <input type="{{ input_type }}" id="{{ key }}" name="{{ key }}" {% if value %} checked {% endif %}>
                         <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}</label><br>
+                    {% elif input_type == 'select' %}
+                        <select name="{{ key }}">
+                            {% for option in select_options %}
+                                <option value="{{ option }}" {% if option == value %} selected {% endif %}>{{ option }}</option>
+                            {% endfor %}
+                        </select><br>
                     {% else %}
                         <input type="{{ input_type }}" id="{{ key }}" name="{{ key }}" value="{{ value }}"><br>
                     {% endif %}

@@ -31,7 +31,7 @@
                     {% endfor %}
                     <td> <a href="{{ url_for('edit_project', id=row['_id']) }}">Edit</a></td>
                     <td>
-                        <form action="{{ url_for('delete', id=row['_id']) }}" method="POST" style="display:inline;">
+                        <form action="{{ url_for('delete_project', id=row['_id']) }}" method="POST" style="display:inline;">
                             <button type="submit">Delete</button>
                         </form>
                     </td>
@@ -40,6 +40,6 @@
         </tbody>
     </table>
     <br>
-    <a href="{{ url_for('create') }}"><button>New Project</button></a> <br>
+    <a href="{{ url_for('create_project') }}"><button>New Project</button></a> <br>
     <a href="{{ url_for('github_repos') }}"><button>View GitHub Repositories</button></a>
 {% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Onderzoekers List{% endblock %}
+
+{% block content %}
+    <h1>Onderzoekers List</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                {% for column in table_columns %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_rows %}
+                <tr>
+                    {% for value in row.values() %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                    <td> <!-- Actions -->
+                        <a href="{{ url_for('edit_onderzoeker', id=row['_id']) }}">Edit</a> |
+                        <form action="{{ url_for('delete_onderzoeker', id=row['_id']) }}" method="POST" style="display:inline;">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('create_onderzoeker') }}"><button>Create Onderzoeker</button></a> <br><br>
+{% endblock %}

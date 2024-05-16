@@ -6,6 +6,17 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
 import pandas as pd
+from email_validator import validate_email, EmailNotValidError
+
+def is_valid_email(email):
+    try:
+        # Validate the email address
+        validate_email(email)
+        return True
+    except EmailNotValidError as e:
+        # Email is not valid, return False
+        return False
+
 
 bson_types = [
     "String",
@@ -51,8 +62,8 @@ def index():
     return render_template('index.html', table_columns=table_columns, table_rows=table_rows)
 
 
-@app.route('/create', methods=['GET', 'POST'])
-def create():
+@app.route('/create_project', methods=['GET', 'POST'])
+def create_project():
     configurations = db.configurations.find({'inuse': True})  # Fetch configurations where inuse=True
     if request.method == 'POST':
         name = request.form['title']
@@ -60,7 +71,6 @@ def create():
         doelstelling = request.form['doelstelling']
         beoogd_resultaat = request.form['beoogd_resultaat']
         
-        # Iterate over configurations to dynamically collect form data
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
@@ -103,15 +113,14 @@ def create():
 
         return redirect(url_for('index'))
     else:
-        return render_template('create.html', configurations=configurations)
+        return render_template('createproject.html', configurations=configurations)
 
 
 @app.route('/edit_project/<string:id>', methods=['GET', 'POST'])
 def edit_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
-    configurations = db.configurations.find()  # Fetch all configurations
+    configurations = db.configurations.find()  
     if request.method == 'POST':
-        # Iterate over configurations to dynamically collect form data
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
@@ -122,12 +131,12 @@ def edit_project(id):
         db.projects.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
         return redirect(url_for('index'))
     else:
-        return render_template('edit_project.html', project=project, configurations=configurations)
+        return render_template('editproject.html', project=project, configurations=configurations)
 
 
 
-@app.route('/delete/<string:id>', methods=['POST'])
-def delete(id):
+@app.route('/delete_project/<string:id>', methods=['POST'])
+def delete_project(id):
     db.projects.delete_one({'_id': ObjectId(id)})
     return redirect(url_for('index'))
 
@@ -150,15 +159,13 @@ def makeconfig():
     if request.method == "POST":
         attribute_name = request.form["attributename"]
         attribute_type = request.form["attributetype"]
-        attribute_inuse = request.form.get("inuse", False)  # Get the value of inuse from the form
+        attribute_inuse = request.form.get("inuse", False)  
         
-        # Convert attribute_inuse to boolean
         if attribute_inuse == "on":
             attribute_inuse = True
         else:
             attribute_inuse = False
         
-        # If attribute_type is 'Array', retrieve array contents from form
         if attribute_type == 'Array':
             array_contents = request.form.getlist('array_contents')
             db.configurations.insert_one({'name': attribute_name, 'type': attribute_type, 'inuse': attribute_inuse, 'ArrayContents': array_contents})
@@ -175,8 +182,7 @@ def makeconfig():
 def editconfig(id):
     configuration = db.configurations.find_one({'_id': ObjectId(id)})
     if request.method == 'POST':
-        attribute_inuse = request.form.get("inuse", False)  # Get the value of inuse from the form
-        # Convert attribute_inuse to boolean
+        attribute_inuse = request.form.get("inuse", False)  
         if attribute_inuse == "on":
             attribute_inuse = True
         else:
@@ -193,6 +199,36 @@ def editconfig(id):
 def deleteconfig(id):
     db.configurations.delete_one({'_id': ObjectId(id)})
     return redirect(url_for('configuration'))
+
+@app.route('/onderzoekers')
+def onderzoekers():
+    onderzoekers_data = db.onderzoekers.find()
+    
+    df = pd.DataFrame(list(onderzoekers_data))
+    
+    table_columns = df.columns.tolist()
+    
+    table_rows = df.to_dict(orient='records')
+
+    return render_template('onderzoekers.html', table_columns=table_columns, table_rows=table_rows)
+
+
+@app.route('/create_onderzoeker', methods=['GET', 'POST'])
+def create_onderzoeker():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        
+        # Validate email address
+        if not is_valid_email(email):
+            return render_template('error.html', error_message='Invalid email address.')
+        
+        # Save onderzoeker to the database
+        db.onderzoekers.insert_one({'name': name, 'email': email})
+        
+        return redirect(url_for('onderzoekers'))
+    else:
+        return render_template('createonderzoeker.html')
 
 
 @app.route('/githubrepos')
