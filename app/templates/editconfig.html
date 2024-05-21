@@ -1,29 +1,69 @@
 {% extends 'base.html' %}
-
 {% block title %}Edit Configuration{% endblock %}
 
 {% block content %}
-    <h1>Edit Configuration</h1>
-    <form action="{{ url_for('editconfig', id=configuration._id) }}" method="POST">
-        <label for="attributename">Attribute Name:</label>
-        <input type="text" id="attributename" name="attributename" value="{{ configuration.name }}" required><br><br>
-        
-        <select id="attributetype" name="attributetype" required>
-            {% for bson_type in bson_types %}
-                {% if bson_type == configuration.type %}
-                    <option value="{{ bson_type }}" selected>{{ bson_type }}</option>
-                {% else %}
-                    <option value="{{ bson_type }}">{{ bson_type }}</option>
-                {% endif %}
-            {% endfor %}
-        </select> <br> <br>
-        
-        <input type="checkbox" id="inuse_checkbox" name="inuse" {% if configuration.inuse %}checked{% endif %}> <!-- Checkbox input -->
-        <label for="inuse_checkbox">In Gebruik</label>
+<h1>Edit Configuration</h1>
+<form method="POST" action="{{ url_for('editconfig', id=configuration._id) }}">
+    <label for="attributename">Attribute Name:</label>
+    <input type="text" id="attributename" name="attributename" value="{{ configuration.name }}" required><br><br>
 
-        
+    <label for="attributetype">Attribute Type:</label>
+    <select id="attributetype" name="attributetype" required>
+        {% for bson_type in bson_types %}
+            <option value="{{ bson_type }}" {% if bson_type == configuration.type %}selected{% endif %}>{{ bson_type }}</option>
+        {% endfor %}
+    </select> <br> <br>
+
+    <label for="ConnectedCollection">Select Related Collection:</label>
+    <select id="ConnectedCollection" name="ConnectedCollection" required>
+        <option value="" disabled>Select Collection</option>
+        {% for collection in collections %}
+            <option value="{{ collection }}" {% if collection == configuration.ConnectedCollection %}selected{% endif %}>{{ collection }}</option>
+        {% endfor %}
+    </select> <br><br>
+
+    <input type="checkbox" id="inuse_checkbox" name="inuse" {% if configuration.inuse %}checked{% endif %}>
+    <label for="inuse_checkbox">In Gebruik</label> <br><br>
+
+    {% if configuration.type == 'Array' %}
+        <div id="array_input_container">
+            <label for="array_contents">Array Contents:</label>
+            <div id="array_contents_container">
+                {% for item in configuration.ArrayContents %}
+                    <input type="text" name="array_contents[]" value="{{ item }}" required>
+                    <br>
+                {% endfor %}
+            </div>
+            <br>
+            <button type="button" id="add_array_field">Add Another Entry</button>
+            <button type="button" id="remove_array_field">Remove Last Entry</button>
+        </div>
         <br><br>
-        
-        <button type="submit">Edit Configuration</button>
-    </form>
+    {% endif %}
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var arrayContainer = document.getElementById('array_contents_container');
+
+        document.getElementById('add_array_field').addEventListener('click', function() {
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'array_contents[]';
+            input.required = true;
+            arrayContainer.appendChild(input);
+            arrayContainer.appendChild(document.createElement('br'));
+        });
+
+        document.getElementById('remove_array_field').addEventListener('click', function() {
+            var inputs = arrayContainer.querySelectorAll('input[type="text"]');
+            if (inputs.length > 1) {
+                arrayContainer.removeChild(inputs[inputs.length - 1]);
+                arrayContainer.removeChild(arrayContainer.lastElementChild); // remove <br>
+            }
+        });
+    });
+</script>
 {% endblock %}

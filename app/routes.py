@@ -66,7 +66,7 @@ def index():
 
 @app.route('/create_project', methods=['GET', 'POST'])
 def create_project():
-    configurations = db.configurations.find({'inuse': True})  # Fetch configurations where inuse=True
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})  # Fetch configurations where inuse=True
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
@@ -161,22 +161,41 @@ def makeconfig():
     if request.method == "POST":
         attribute_name = request.form["attributename"]
         attribute_type = request.form["attributetype"]
-        attribute_inuse = request.form.get("inuse", False)  
+        attribute_inuse = request.form.get("inuse", False)
         
         if attribute_inuse == "on":
             attribute_inuse = True
         else:
             attribute_inuse = False
         
+        connected_collection = request.form["ConnectedCollection"]
+        
         if attribute_type == 'Array':
-            array_contents = request.form.getlist('array_contents')
-            db.configurations.insert_one({'name': attribute_name, 'type': attribute_type, 'inuse': attribute_inuse, 'ArrayContents': array_contents})
+            array_contents = request.form.getlist('array_contents[]')
+            db.configurations.insert_one({
+                'name': attribute_name, 
+                'type': attribute_type, 
+                'inuse': attribute_inuse, 
+                'ArrayContents': array_contents, 
+                'ConnectedCollection': connected_collection
+            })
         else:
-            db.configurations.insert_one({'name': attribute_name, 'type': attribute_type, 'inuse': attribute_inuse})
+            db.configurations.insert_one({
+                'name': attribute_name, 
+                'type': attribute_type, 
+                'inuse': attribute_inuse, 
+                'ConnectedCollection': connected_collection
+            })
         
         return redirect(url_for('configuration'))
     else:
-        return render_template('makeconfig.html', bson_types=bson_types)
+        collection_names = db.list_collection_names()
+        collection_names = [name for name in collection_names if name != 'configurations']
+        
+        return render_template('makeconfig.html', bson_types=bson_types, collections=collection_names)
+
+
+
 
 
 
@@ -184,15 +203,37 @@ def makeconfig():
 def editconfig(id):
     configuration = db.configurations.find_one({'_id': ObjectId(id)})
     if request.method == 'POST':
-        attribute_inuse = request.form.get("inuse", False)  
+        attribute_name = request.form['attributename']
+        attribute_type = request.form['attributetype']
+        attribute_inuse = request.form.get("inuse", False)
         if attribute_inuse == "on":
             attribute_inuse = True
         else:
             attribute_inuse = False
-        db.configurations.update_one({'_id': ObjectId(id)}, {'$set': {'name': request.form['attributename'], 'type': request.form['attributetype'], 'inuse' : attribute_inuse}})
+        
+        connected_collection = request.form["ConnectedCollection"]
+        
+        update_data = {
+            'name': attribute_name,
+            'type': attribute_type,
+            'inuse': attribute_inuse,
+            'ConnectedCollection': connected_collection
+        }
+        
+        if attribute_type == 'Array':
+            array_contents = request.form.getlist('array_contents')
+            update_data['ArrayContents'] = array_contents
+        
+        db.configurations.update_one({'_id': ObjectId(id)}, {'$set': update_data})
         return redirect(url_for('configuration'))
     else:
-        return render_template('editconfig.html', bson_types=bson_types, configuration=configuration)
+        collection_names = db.list_collection_names()
+        collection_names = [name for name in collection_names if name != 'configurations']
+        
+        return render_template('editconfig.html', bson_types=bson_types, configuration=configuration, collections=collection_names)
+
+
+
 
 
 
@@ -257,6 +298,20 @@ def delete_onderzoeker(id):
     # Assuming db is your MongoDB database connection
     db.onderzoekers.delete_one({'_id': ObjectId(id)})
     return redirect(url_for('onderzoekers'))
+
+@app.route('/overproject')
+def overproject():
+    projects = db.projects.find()
+    
+    df = pd.DataFrame(list(projects))
+    
+    table_columns = df.columns.tolist()
+    
+    table_rows = df.to_dict(orient='records')
+
+    return render_template('overproject.html', table_columns=table_columns, table_rows=table_rows)
+
+
 
 
 @app.route('/githubrepos')
