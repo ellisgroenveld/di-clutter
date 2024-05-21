@@ -299,9 +299,9 @@ def delete_onderzoeker(id):
     db.onderzoekers.delete_one({'_id': ObjectId(id)})
     return redirect(url_for('onderzoekers'))
 
-@app.route('/overproject')
-def overproject():
-    projects = db.projects.find()
+@app.route('/overkoepelende_projects')
+def overkoepelende_projects():
+    projects = db.overkoepelende_projects.find()
     
     df = pd.DataFrame(list(projects))
     
@@ -309,7 +309,79 @@ def overproject():
     
     table_rows = df.to_dict(orient='records')
 
-    return render_template('overproject.html', table_columns=table_columns, table_rows=table_rows)
+    return render_template('overprojects.html', table_columns=table_columns, table_rows=table_rows)
+
+@app.route('/create_overkoepelende_project', methods=['GET', 'POST'])
+def create_overkoepelende_project():
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'overkoepelende_projects'})  # Fetch configurations where inuse=True
+    if request.method == 'POST':
+        # Extract data from the form
+        research_project = request.form['researchproject']
+
+        # Process dynamic fields
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+
+        # Save the project to the database
+        db.overkoepelende_projects.insert_one({'research_project': research_project, **dynamic_fields})
+
+        # Redirect to a success page or somewhere else
+        return redirect(url_for('overkoepelende_projects'))
+    else:
+        # Render the form template with the configurations
+        return render_template('createover.html', configurations=configurations)
+
+
+@app.route('/edit_overkoepelende_project/<string:id>', methods=['GET', 'POST'])
+def edit_overkoepelende_project(id):
+    project = db.overkoepelende_projects.find_one({'_id': ObjectId(id)})
+    configurations = db.configurations.find()  
+    if request.method == 'POST':
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            if attribute_name in project:
+                attribute_type = config['type']
+                if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
+                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
+        dynamic_fields['researchproject'] = request.form.get('researchproject')
+        db.overkoepelende_projects.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
+        return redirect(url_for('overkoepelende_projects'))
+    else:
+        if 'researchproject' not in project:
+            project['researchproject'] = ''
+        return render_template('editover.html', project=project, configurations=configurations)
+
+
+
+@app.route('/delete_overkoepelende_project/<string:id>', methods=['POST'])
+def delete_overkoepelende_project(id):
+    db.overkoepelende_projects.delete_one({'_id': ObjectId(id)})
+    return redirect(url_for('overkoepelende_projects'))
+
+
 
 
 
