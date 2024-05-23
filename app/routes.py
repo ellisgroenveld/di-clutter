@@ -72,6 +72,7 @@ def create_project():
         aanleiding = request.form['aanleiding']
         doelstelling = request.form['doelstelling']
         beoogd_resultaat = request.form['beoogd_resultaat']
+        studentid = request.form['studentid']
         
         dynamic_fields = {}
         for config in configurations:
@@ -111,7 +112,7 @@ def create_project():
 
         gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, **dynamic_fields})
+        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, **dynamic_fields})
 
         return redirect(url_for('index'))
     else:
@@ -258,6 +259,7 @@ def onderzoekers():
 
 @app.route('/create_onderzoeker', methods=['GET', 'POST'])
 def create_onderzoeker():
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'onderzoekers'})  # Fetch configurations where inuse=True
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -266,17 +268,46 @@ def create_onderzoeker():
         if not is_valid_email(email):
             return render_template('error.html', error_message='Invalid email address.')
         
+        # Process dynamic fields
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+
         # Save onderzoeker to the database
-        db.onderzoekers.insert_one({'name': name, 'email': email})
+        db.onderzoekers.insert_one({'name': name, 'email': email, **dynamic_fields})
         
         return redirect(url_for('onderzoekers'))
     else:
-        return render_template('createonderzoeker.html')
+        return render_template('createonderzoeker.html', configurations=configurations)
+
     
 
 @app.route('/edit_onderzoeker/<string:id>', methods=['GET', 'POST'])
 def edit_onderzoeker(id):
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'onderzoekers'})  # Fetch configurations where inuse=True
     onderzoeker = db.onderzoekers.find_one({'_id': ObjectId(id)})
+    
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -285,12 +316,42 @@ def edit_onderzoeker(id):
         if not is_valid_email(email):
             return render_template('error.html', error_message='Invalid email address.')
         
+        # Process dynamic fields
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+
         # Update onderzoeker in the database
-        db.onderzoekers.update_one({'_id': ObjectId(id)}, {'$set': {'name': name, 'email': email}})
+        db.onderzoekers.update_one(
+            {'_id': ObjectId(id)},
+            {'$set': {'name': name, 'email': email, **dynamic_fields}}
+        )
         
         return redirect(url_for('onderzoekers'))
     else:
-        return render_template('editonderzoeker.html', onderzoeker=onderzoeker)
+        return render_template('editonderzoeker.html', configurations=configurations, onderzoeker=onderzoeker)
+
     
 
 @app.route('/delete_onderzoeker/<string:id>', methods=['POST'])
@@ -383,6 +444,84 @@ def delete_overkoepelende_project(id):
 
 
 
+@app.route('/owe')
+def owe():
+    owe_data = db.owe.find()  # Replace 'owe' with the actual collection name if different
+    
+    df = pd.DataFrame(list(owe_data))
+    
+    table_columns = df.columns.tolist()
+    
+    table_rows = df.to_dict(orient='records')
+
+    return render_template('owe.html', table_columns=table_columns, table_rows=table_rows)
+
+
+
+
+@app.route('/create_owe', methods=['GET', 'POST'])
+def create_owe():
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'owe'})  # Fetch configurations where inuse=True and ConnectedCollection is 'owe'
+    if request.method == 'POST':
+        name = request.form['name']
+        
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+        
+        db.owe.insert_one({'name': name, **dynamic_fields})
+
+        return redirect(url_for('owe'))
+    else:
+        return render_template('createowe.html', configurations=configurations)
+
+
+
+
+@app.route('/edit_owe/<string:id>', methods=['GET', 'POST'])
+def edit_owe(id):
+    owe = db.owe.find_one({'_id': ObjectId(id)})
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'owe'})  
+    if request.method == 'POST':
+        dynamic_fields = {}
+        for config in configurations:
+            attribute_name = config['name']
+            if attribute_name in owe:
+                attribute_type = config['type']
+                if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
+                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
+        db.owe.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
+        return redirect(url_for('owe'))
+    else:
+        return render_template('editowe.html', owe=owe, configurations=configurations)
+
+
+
+@app.route('/delete_owe/<string:id>', methods=['POST'])
+def delete_owe(id):
+    db.owe.delete_one({'_id': ObjectId(id)})
+    return redirect(url_for('owe'))
 
 
 

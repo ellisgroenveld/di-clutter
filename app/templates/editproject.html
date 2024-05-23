@@ -7,7 +7,7 @@
     <form action="{{ url_for('edit_project', id=project._id) }}" method="POST">
         {% for key, value in project.items() %}
             {% if key not in ['_id'] %}
-                {% if key in ['title', 'aanleiding', 'doelstelling', 'beoogd_resultaat'] %}
+                {% if key in ['title', 'aanleiding', 'doelstelling', 'beoogd_resultaat', 'studentid'] %}
                     <label for="{{ key }}">{{ key.capitalize().replace('_', ' ') }}:</label><br>
                     <textarea id="{{ key }}" name="{{ key }}">{{ value }}</textarea><br>
                 {% else %}
