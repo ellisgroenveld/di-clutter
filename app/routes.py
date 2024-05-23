@@ -12,13 +12,13 @@ from email_validator import validate_email, EmailNotValidError
 
 
 bson_types = [
+    "Array",
     "String",
     "Integer",
     "Double",
     "Boolean",
     "Date",
     "ObjectId",
-    "Array",
     "Binary Data",
     "Undefined",
     "Null"
@@ -63,17 +63,18 @@ def index():
 
     return render_template('index.html', table_columns=table_columns, table_rows=table_rows)
 
-
 @app.route('/create_project', methods=['GET', 'POST'])
 def create_project():
-    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})  # Fetch configurations where inuse=True
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
+    overkoepelende_projects = db.overkoepelende_projects.find()
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
         doelstelling = request.form['doelstelling']
         beoogd_resultaat = request.form['beoogd_resultaat']
         studentid = request.form['studentid']
-        
+        selected_overkoepelende_project = request.form['overkoepelende_project']
+
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
@@ -98,7 +99,7 @@ def create_project():
                 dynamic_fields[attribute_name] = None
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
-            
+
         private = True
         auto_init = True
 
@@ -110,38 +111,101 @@ def create_project():
             error_message = f"Repository '{name}' already exists in the organization."
             return render_template('error.html', error_message=error_message)
 
-        gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
+        repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, **dynamic_fields})
+        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, **dynamic_fields})
 
         return redirect(url_for('index'))
     else:
-        return render_template('createproject.html', configurations=configurations)
+        return render_template('createproject.html', configurations=configurations, overkoepelende_projects=overkoepelende_projects)
 
 
 @app.route('/edit_project/<string:id>', methods=['GET', 'POST'])
 def edit_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
-    configurations = db.configurations.find()  
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
+    overkoepelende_projects = db.overkoepelende_projects.find()
     if request.method == 'POST':
+        name = request.form['title']
+        aanleiding = request.form['aanleiding']
+        doelstelling = request.form['doelstelling']
+        beoogd_resultaat = request.form['beoogd_resultaat']
+        studentid = request.form['studentid']
+        selected_overkoepelende_project = request.form['overkoepelende_project']
+
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
-            if attribute_name in project:
-                attribute_type = config['type']
-                if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
-                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
-        db.projects.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+
+        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, **dynamic_fields}})
         return redirect(url_for('index'))
     else:
-        return render_template('editproject.html', project=project, configurations=configurations)
-
+        return render_template('editproject.html', project=project, configurations=configurations, overkoepelende_projects=overkoepelende_projects)
 
 
 @app.route('/delete_project/<string:id>', methods=['POST'])
 def delete_project(id):
     db.projects.delete_one({'_id': ObjectId(id)})
     return redirect(url_for('index'))
+
+
+from flask import render_template
+from bson import ObjectId
+from ghapi.all import GhApi
+import os
+
+@app.route('/project_details/<string:id>')
+def project_details(id):
+    project = db.projects.find_one({'_id': ObjectId(id)})
+    
+    # If the project has a GitHub repository
+    if 'githubrepo' in project:
+        # Fetch GitHub information
+        token = os.environ.get('GH_TOKEN2')
+        gh = GhApi(token=token)
+        
+        github_url = project['githubrepo']
+        owner, repo_name = github_url.split('/')[-2:]
+
+        repo = gh.repos.get(owner=owner, repo=repo_name)
+
+        contributors = gh.repos.list_contributors(owner=owner, repo=repo_name)
+        contributors_list = [contributor.login for contributor in contributors]
+
+        project['github_info'] = {
+            'name': repo.name,
+            'description': repo.description,
+            'owner': repo.owner.login,
+            'visibility': 'Private' if repo.private else 'Public',
+            'language': repo.language,
+            'contributors': contributors_list,
+            'topics': ', '.join(repo.topics)
+        }
+    
+    return render_template('projectdetails.html', project=project)
+
+
 
 
 @app.route('/configuration')
@@ -536,9 +600,5 @@ def github_repos():
     org = 'DIClutter'
 
     repos = gh.repos.list_for_org(org)
-
-    for repo in repos:
-        contributors = gh.repos.list_contributors(owner=org, repo=repo.name)
-        repo.contributors = [contributor.login for contributor in contributors]
 
     return render_template('githubrepos.html', repos=repos)

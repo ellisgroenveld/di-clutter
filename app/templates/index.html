@@ -13,27 +13,46 @@
     <table border="1">
         <thead>
             <tr>
-                {% for column in table_columns %}
-                    <th>{{ column }}</th>
-                {% endfor %}
+                <th>Title</th>
+                <th>Beoogd Resultaat</th>
+                <th>Overkoepelende Project</th>
+                <th>Github Repo</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for row in table_rows %}
                 <tr>
-                    {% for value in row.values() %}
-                        {% if value != value %} {# Check for NaN #}
-                            <td class="nan-cell">{{ value }}</td>
+                    <td {% if row.title != row.title %} class="nan-cell" {% endif %}>
+                        {% if row.title == row.title %}
+                            {{ row.title }}
                         {% else %}
-                            <td>{{ value }}</td>
+                            NaN
                         {% endif %}
-                    {% endfor %}
-                    <td> <a href="{{ url_for('edit_project', id=row['_id']) }}">Edit</a></td>
+                    </td>
+                    <td {% if row.beoogd_resultaat != row.beoogd_resultaat %} class="nan-cell" {% endif %}>
+                        {% if row.beoogd_resultaat == row.beoogd_resultaat %}
+                            {{ row.beoogd_resultaat }}
+                        {% else %}
+                            NaN
+                        {% endif %}
+                    </td>
+                    <td {% if row.overkoepelende_project != row.overkoepelende_project %} class="nan-cell" {% endif %}>
+                        {% if row.overkoepelende_project == row.overkoepelende_project %}
+                            {{ row.overkoepelende_project }}
+                        {% else %}
+                            NaN
+                        {% endif %}
+                    </td>
                     <td>
-                        <form action="{{ url_for('delete_project', id=row['_id']) }}" method="POST" style="display:inline;">
-                            <button type="submit">Delete</button>
-                        </form>
+                        {% if row.githubrepo != row.githubrepo %}
+                            <span class="nan-cell">NaN</span>
+                        {% elif row.githubrepo %}
+                            <a href="{{ row.githubrepo }}" target="_blank">{{ row.githubrepo }}</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('project_details', id=row['_id']) }}">Details</a>
                     </td>
                 </tr>
             {% endfor %}

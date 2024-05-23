@@ -41,13 +41,27 @@
 </form>
 
 <script>
-    document.getElementById('attributetype').addEventListener('change', function() {
-        var selectedValue = this.value;
-        if (selectedValue === 'Array') {
-            document.getElementById('array_input_container').style.display = 'block';
-        } else {
-            document.getElementById('array_input_container').style.display = 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+        var attributeTypeSelect = document.getElementById('attributetype');
+        var arrayInputContainer = document.getElementById('array_input_container');
+        var arrayInput = document.querySelector('input[name="array_contents[]"]');
+
+        // Show array input container if Array is selected initially
+        if (attributeTypeSelect.value === 'Array') {
+            arrayInputContainer.style.display = 'block';
+            arrayInput.required = true; // Set required initially
         }
+
+        attributeTypeSelect.addEventListener('change', function() {
+            var selectedValue = this.value;
+            if (selectedValue === 'Array') {
+                arrayInputContainer.style.display = 'block';
+                arrayInput.required = true; // Set required if Array is selected
+            } else {
+                arrayInputContainer.style.display = 'none';
+                arrayInput.required = false; // Remove required if Array is not selected
+            }
+        });
     });
 
     document.getElementById('add_array_field').addEventListener('click', function() {
@@ -55,7 +69,7 @@
         var input = document.createElement('input');
         input.type = 'text';
         input.name = 'array_contents[]';
-        input.required = true;
+        input.required = true; // Set required for new array fields
         container.appendChild(input);
         var lineBreak = document.createElement('br');
         container.appendChild(lineBreak);
@@ -70,4 +84,5 @@
         }
     });
 </script>
+
 {% endblock %}
