@@ -32,6 +32,8 @@
                         {% endif %}
                     {% endfor %}
                 </div>
+            {% elif key == 'githubrepo' %}
+                <div><a href="{{ value }}">{{ value }}</a></div>
             {% else %}
                 <div>{{ value }}</div>
             {% endif %}

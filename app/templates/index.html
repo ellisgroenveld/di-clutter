@@ -23,31 +23,12 @@
         <tbody>
             {% for row in table_rows %}
                 <tr>
-                    <td {% if row.title != row.title %} class="nan-cell" {% endif %}>
-                        {% if row.title == row.title %}
-                            {{ row.title }}
-                        {% else %}
-                            NaN
-                        {% endif %}
-                    </td>
-                    <td {% if row.beoogd_resultaat != row.beoogd_resultaat %} class="nan-cell" {% endif %}>
-                        {% if row.beoogd_resultaat == row.beoogd_resultaat %}
-                            {{ row.beoogd_resultaat }}
-                        {% else %}
-                            NaN
-                        {% endif %}
-                    </td>
-                    <td {% if row.overkoepelende_project != row.overkoepelende_project %} class="nan-cell" {% endif %}>
-                        {% if row.overkoepelende_project == row.overkoepelende_project %}
-                            {{ row.overkoepelende_project }}
-                        {% else %}
-                            NaN
-                        {% endif %}
-                    </td>
+                    <td>{{ row.title }}</td>
+                    <td>{{ row.beoogd_resultaat }}</td>
+                    <td>{{ row.overkoepelende_project }}</td>
                     <td>
-                        {% if row.githubrepo != row.githubrepo %}
-                            <span class="nan-cell">NaN</span>
-                        {% elif row.githubrepo %}
+                        
+                        {% if row.githubrepo %}
                             <a href="{{ row.githubrepo }}" target="_blank">{{ row.githubrepo }}</a>
                         {% endif %}
                     </td>

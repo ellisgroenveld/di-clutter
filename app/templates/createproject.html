@@ -20,7 +20,7 @@
         <label for="overkoepelende_project">Overkoepelende Project:</label><br>
         <select id="overkoepelende_project" name="overkoepelende_project">
             {% for project in overkoepelende_projects %}
-                <option value="{{ project._id }}">{{ project.research_project }}</option>
+                <option value="{{ project.research_project }}">{{ project.research_project }}</option>
             {% endfor %}
         </select><br>
 

@@ -53,15 +53,19 @@ def is_valid_email(email):
 
 @app.route('/')
 def index():
-    projects = db.projects.find()
-    
-    df = pd.DataFrame(list(projects))
-    
-    table_columns = df.columns.tolist()
+    projects = list(db.projects.find())
+    overkoepelende_projects = {project['_id']: project['research_project'] for project in db.overkoepelende_projects.find()}
 
+    for project in projects:
+        if 'overkoepelende_project' in project:
+            project['overkoepelende_project_name'] = overkoepelende_projects.get(project['overkoepelende_project'], 'Unknown Project')
+
+    df = pd.DataFrame(projects)
+    table_columns = df.columns.tolist()
     table_rows = df.to_dict(orient='records')
 
     return render_template('index.html', table_columns=table_columns, table_rows=table_rows)
+
 
 @app.route('/create_project', methods=['GET', 'POST'])
 def create_project():
@@ -170,14 +174,15 @@ def delete_project(id):
     return redirect(url_for('index'))
 
 
-from flask import render_template
-from bson import ObjectId
-from ghapi.all import GhApi
-import os
-
 @app.route('/project_details/<string:id>')
 def project_details(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
+    
+    # Get the overkoepelende project name
+    if 'overkoepelende_project' in project:
+        overkoepelende_project = db.overkoepelende_projects.find_one({'_id': project['overkoepelende_project']})
+        if overkoepelende_project:
+            project['overkoepelende_project_name'] = overkoepelende_project.get('research_project', 'Unknown Project')
     
     # If the project has a GitHub repository
     if 'githubrepo' in project:
@@ -204,6 +209,7 @@ def project_details(id):
         }
     
     return render_template('projectdetails.html', project=project)
+
 
 
 
@@ -436,14 +442,18 @@ def overkoepelende_projects():
 
     return render_template('overprojects.html', table_columns=table_columns, table_rows=table_rows)
 
+
 @app.route('/create_overkoepelende_project', methods=['GET', 'POST'])
 def create_overkoepelende_project():
     configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'overkoepelende_projects'})  # Fetch configurations where inuse=True
     if request.method == 'POST':
-        # Extract data from the form
         research_project = request.form['researchproject']
 
-        # Process dynamic fields
+        # Check for duplicate research_project
+        if db.overkoepelende_projects.find_one({'research_project': research_project}):
+            flash(f"The research project '{research_project}' already exists.", 'error')
+            return render_template('createover.html', configurations=configurations)
+
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
@@ -469,21 +479,25 @@ def create_overkoepelende_project():
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
 
-        # Save the project to the database
         db.overkoepelende_projects.insert_one({'research_project': research_project, **dynamic_fields})
-
-        # Redirect to a success page or somewhere else
         return redirect(url_for('overkoepelende_projects'))
     else:
-        # Render the form template with the configurations
         return render_template('createover.html', configurations=configurations)
-
 
 @app.route('/edit_overkoepelende_project/<string:id>', methods=['GET', 'POST'])
 def edit_overkoepelende_project(id):
     project = db.overkoepelende_projects.find_one({'_id': ObjectId(id)})
-    configurations = db.configurations.find()  
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'overkoepelende_projects'})
+    
     if request.method == 'POST':
+        research_project = request.form['researchproject']
+        
+        # Check for duplicate research_project
+        existing_project = db.overkoepelende_projects.find_one({'research_project': research_project})
+        if existing_project and str(existing_project['_id']) != id:
+            flash(f"The research project '{research_project}' already exists.", 'error')
+            return render_template('editover.html', project=project, configurations=configurations)
+
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
@@ -491,14 +505,13 @@ def edit_overkoepelende_project(id):
                 attribute_type = config['type']
                 if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
                     dynamic_fields[attribute_name] = request.form.get(attribute_name)
-        dynamic_fields['researchproject'] = request.form.get('researchproject')
+        dynamic_fields['research_project'] = research_project
         db.overkoepelende_projects.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
         return redirect(url_for('overkoepelende_projects'))
     else:
-        if 'researchproject' not in project:
-            project['researchproject'] = ''
+        if 'research_project' not in project:
+            project['research_project'] = ''
         return render_template('editover.html', project=project, configurations=configurations)
-
 
 
 @app.route('/delete_overkoepelende_project/<string:id>', methods=['POST'])
