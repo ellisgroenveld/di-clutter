@@ -3,43 +3,76 @@
 {% block title %}Project List{% endblock %}
 
 {% block content %}
-    <style>
-        .nan-cell {
-            color: red; /* Set the color to red */
-        }
-    </style>
-    
-    <h1>Project List</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Beoogd Resultaat</th>
-                <th>Overkoepelende Project</th>
-                <th>Github Repo</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in table_rows %}
-                <tr>
-                    <td>{{ row.title }}</td>
-                    <td>{{ row.beoogd_resultaat }}</td>
-                    <td>{{ row.overkoepelende_project }}</td>
-                    <td>
-                        
-                        {% if row.githubrepo %}
-                            <a href="{{ row.githubrepo }}" target="_blank">{{ row.githubrepo }}</a>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ url_for('project_details', id=row['_id']) }}">Details</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
-    <a href="{{ url_for('create_project') }}"><button>New Project</button></a> <br>
-    <a href="{{ url_for('github_repos') }}"><button>View GitHub Repositories</button></a>
+<style>
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .project-square {
+        border: 1px solid #ccc;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .project-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .project-link {
+        text-decoration: none;
+        color: blue;
+        display: inline;
+        /* Ensure URLs are displayed inline */
+    }
+
+    .project-link:hover {
+        text-decoration: underline;
+    }
+
+    .nan-cell {
+        color: red;
+        /* Set the color to red for NaN values */
+    }
+</style>
+
+<h1>Project List</h1>
+<div class="project-grid">
+    {% for row in table_rows %}
+    <div class="project-square">
+        <div class="project-title {% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">{{ row.title if
+            row.title else 'NaN' }}</div>
+        <div class="{% if row.beoogd_resultaat == none or row.beoogd_resultaat == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Beoogd Resultaat:</strong> {{ row.beoogd_resultaat if row.beoogd_resultaat else 'NaN' }}</div>
+        <div
+            class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Overkoepelende Project:</strong> {{ row.overkoepelende_project if row.overkoepelende_project else
+            'NaN' }}</div>
+
+        {% if row.githubrepo %}
+        {% set github_link = row.githubrepo|string %}
+        {% if 'github.com' in github_link %}
+        <div><strong>Github Repo:</strong> <a href="{{ row.githubrepo }}" class="project-link" target="_blank">{{
+                row.githubrepo }}</a></div>
+        {% else %}
+        <div class="nan-cell"><strong>Github Repo:</strong> NaN</div>
+        {% endif %}
+        {% else %}
+        <div class="nan-cell"><strong>Github Repo:</strong> NaN</div>
+        {% endif %}
+        <div>
+            {% if row['_id'] %}
+            <a href="{{ url_for('project_details', id=row['_id']) }}" class="project-link">Details</a>
+            {% else %}
+            <span class="nan-cell">NaN</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<br>
+<a href="{{ url_for('create_project') }}"><button>New Project</button></a> <br>
+<a href="{{ url_for('github_repos') }}"><button>View GitHub Repositories</button></a>
 {% endblock %}

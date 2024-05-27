@@ -7,6 +7,7 @@ from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
 import pandas as pd
 from email_validator import validate_email, EmailNotValidError
+from urllib.parse import urlparse
 
 
 
@@ -54,12 +55,6 @@ def is_valid_email(email):
 @app.route('/')
 def index():
     projects = list(db.projects.find())
-    overkoepelende_projects = {project['_id']: project['research_project'] for project in db.overkoepelende_projects.find()}
-
-    for project in projects:
-        if 'overkoepelende_project' in project:
-            project['overkoepelende_project_name'] = overkoepelende_projects.get(project['overkoepelende_project'], 'Unknown Project')
-
     df = pd.DataFrame(projects)
     table_columns = df.columns.tolist()
     table_rows = df.to_dict(orient='records')
@@ -170,7 +165,27 @@ def edit_project(id):
 
 @app.route('/delete_project/<string:id>', methods=['POST'])
 def delete_project(id):
+    project = db.projects.find_one({'_id': ObjectId(id)})
+    if not project:
+        return "Project not found", 404
+
+    github_repo_url = project.get('githubrepo')
+
+    if github_repo_url:
+        parts = github_repo_url.split('/')
+        owner = parts[-2]
+        repo_name = parts[-1]
+
+        token = os.environ.get('GH_TOKEN2')
+        gh = GhApi(token=token)
+
+        try:
+            gh.repos.delete(owner=owner, repo=repo_name)
+        except Exception as e:
+            return f"Failed to delete repository from GitHub: {str(e)}", 500
+
     db.projects.delete_one({'_id': ObjectId(id)})
+
     return redirect(url_for('index'))
 
 
@@ -178,15 +193,12 @@ def delete_project(id):
 def project_details(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
     
-    # Get the overkoepelende project name
     if 'overkoepelende_project' in project:
         overkoepelende_project = db.overkoepelende_projects.find_one({'_id': project['overkoepelende_project']})
         if overkoepelende_project:
             project['overkoepelende_project_name'] = overkoepelende_project.get('research_project', 'Unknown Project')
     
-    # If the project has a GitHub repository
     if 'githubrepo' in project:
-        # Fetch GitHub information
         token = os.environ.get('GH_TOKEN2')
         gh = GhApi(token=token)
         
@@ -615,3 +627,26 @@ def github_repos():
     repos = gh.repos.list_for_org(org)
 
     return render_template('githubrepos.html', repos=repos)
+
+
+
+@app.route('/delete_repo/<path:repo_url>', methods=['POST'])
+def delete_repo(repo_url):
+    # Parse the GitHub repository URL to obtain owner and repository name
+    parsed_url = urlparse(repo_url)
+    path_parts = parsed_url.path.split('/')
+    owner = path_parts[1]
+    repo_name = path_parts[2]
+
+    # Authenticate with GitHub using ghapi
+    token = os.environ.get('GH_TOKEN2')
+    gh = GhApi(token=token)
+
+    # Delete the repository from GitHub
+    try:
+        gh.repos.delete(owner=owner, repo=repo_name)
+    except Exception as e:
+        return f"Failed to delete repository from GitHub: {str(e)}", 500
+
+    return redirect(url_for('github_repos'))
+
