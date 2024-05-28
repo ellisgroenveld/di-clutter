@@ -4,7 +4,7 @@
 
 {% block content %}
     <h1>Create New Project</h1>
-    <form action="{{ url_for('create_project') }}" method="POST">
+    <form action="{{ url_for('create_project') }}" method="POST" enctype="multipart/form-data">
         <label for="title">Title:</label><br>
         <input type="text" id="title" name="title"><br>
         <label for="aanleiding">Aanleiding:</label><br>
@@ -15,6 +15,11 @@
         <textarea id="beoogd_resultaat" name="beoogd_resultaat"></textarea><br>
         <label for="studentid">Student ID:</label><br>
         <textarea id="studentid" name="studentid"></textarea><br>
+
+        <div>
+            <label for="project_image">Project Image:</label>
+            <input type="file" id="project_image" name="project_image" accept="image/*">
+        </div>
 
         <!-- Dropdown for Overkoepelende Projects -->
         <label for="overkoepelende_project">Overkoepelende Project:</label><br>

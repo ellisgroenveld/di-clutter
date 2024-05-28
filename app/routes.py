@@ -8,8 +8,16 @@ from bson.objectid import ObjectId
 import pandas as pd
 from email_validator import validate_email, EmailNotValidError
 from urllib.parse import urlparse
+from PIL import Image
+import io
 
 
+def convert_image_to_webp(image_stream):
+    img = Image.open(image_stream)
+    webp_io = io.BytesIO()
+    img.save(webp_io, format='webp', quality=80)
+    webp_io.seek(0)
+    return webp_io.read()
 
 
 bson_types = [
@@ -98,6 +106,9 @@ def create_project():
                 dynamic_fields[attribute_name] = None
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
+            
+        project_image = request.files.get('project_image')
+        image_binary = convert_image_to_webp(project_image.stream)
 
         private = True
         auto_init = True
@@ -112,7 +123,7 @@ def create_project():
 
         repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, **dynamic_fields})
+        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'project_image': image_binary, **dynamic_fields})
 
         return redirect(url_for('index'))
     else:
@@ -157,7 +168,10 @@ def edit_project(id):
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
 
-        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, **dynamic_fields}})
+        project_image = request.files.get('project_image')
+        image_binary = convert_image_to_webp(project_image.stream) 
+
+        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, 'project_image': image_binary, **dynamic_fields}})
         return redirect(url_for('index'))
     else:
         return render_template('editproject.html', project=project, configurations=configurations, overkoepelende_projects=overkoepelende_projects)
@@ -632,17 +646,14 @@ def github_repos():
 
 @app.route('/delete_repo/<path:repo_url>', methods=['POST'])
 def delete_repo(repo_url):
-    # Parse the GitHub repository URL to obtain owner and repository name
     parsed_url = urlparse(repo_url)
     path_parts = parsed_url.path.split('/')
     owner = path_parts[1]
     repo_name = path_parts[2]
 
-    # Authenticate with GitHub using ghapi
     token = os.environ.get('GH_TOKEN2')
     gh = GhApi(token=token)
 
-    # Delete the repository from GitHub
     try:
         gh.repos.delete(owner=owner, repo=repo_name)
     except Exception as e:
