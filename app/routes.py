@@ -10,14 +10,12 @@ from email_validator import validate_email, EmailNotValidError
 from urllib.parse import urlparse
 from PIL import Image
 import io
+import base64
+
+if not os.path.exists('app/static/temp'):
+    os.makedirs('app/static/temp')
 
 
-def convert_image_to_webp(image_stream):
-    img = Image.open(image_stream)
-    webp_io = io.BytesIO()
-    img.save(webp_io, format='webp', quality=80)
-    webp_io.seek(0)
-    return webp_io.read()
 
 
 bson_types = [
@@ -60,10 +58,26 @@ def is_valid_email(email):
         # Email is not valid, return False
         return False
 
+def convert_image_to_webp(image_stream):
+    img = Image.open(image_stream)
+    webp_io = io.BytesIO()
+    img.save(webp_io, format='webp', quality=80)
+    webp_io.seek(0)
+    return webp_io.read()
+    
+
 @app.route('/')
 def index():
     projects = list(db.projects.find())
+    for project in projects:
+        if 'project_image' in project and project['project_image']:
+            with open('app/static/temp/' + str(project['_id']) + '.webp', 'wb') as f:
+                f.write(project['project_image'])
+            project['imagepath'] = str(project['_id']) + '.webp'
+
     df = pd.DataFrame(projects)
+
+
     table_columns = df.columns.tolist()
     table_rows = df.to_dict(orient='records')
 
