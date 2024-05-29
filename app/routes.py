@@ -219,6 +219,11 @@ def delete_project(id):
 @app.route('/project_details/<string:id>')
 def project_details(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
+
+    if 'project_image' in project and project['project_image']:
+            with open('app/static/temp/' + str(project['_id']) + '.webp', 'wb') as f:
+                f.write(project['project_image'])
+            project['imagepath'] = str(project['_id']) + '.webp'
     
     if 'overkoepelende_project' in project:
         overkoepelende_project = db.overkoepelende_projects.find_one({'_id': project['overkoepelende_project']})
