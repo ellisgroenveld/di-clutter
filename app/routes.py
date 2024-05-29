@@ -491,7 +491,7 @@ def create_overkoepelende_project():
 
         # Check for duplicate research_project
         if db.overkoepelende_projects.find_one({'research_project': research_project}):
-            flash(f"The research project '{research_project}' already exists.", 'error')
+            flash(f"The research project '{research_project}' already exists.", 'error') # type: ignore
             return render_template('createover.html', configurations=configurations)
 
         dynamic_fields = {}
@@ -535,7 +535,7 @@ def edit_overkoepelende_project(id):
         # Check for duplicate research_project
         existing_project = db.overkoepelende_projects.find_one({'research_project': research_project})
         if existing_project and str(existing_project['_id']) != id:
-            flash(f"The research project '{research_project}' already exists.", 'error')
+            flash(f"The research project '{research_project}' already exists.", 'error') # type: ignore
             return render_template('editover.html', project=project, configurations=configurations)
 
         dynamic_fields = {}
