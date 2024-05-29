@@ -10,7 +10,6 @@ from email_validator import validate_email, EmailNotValidError
 from urllib.parse import urlparse
 from PIL import Image
 import io
-import base64
 
 if not os.path.exists('app/static/temp'):
     os.makedirs('app/static/temp')
