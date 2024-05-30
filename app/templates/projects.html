@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Project List{% endblock %}
+
+{% block content %}
+<style>
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .project-square {
+        border: 1px solid #ccc;
+        padding: 20px;
+        text-align: center;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+    }
+
+    .project-square:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .project-square a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .project-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 1.5em; /* Increased font size */
+    }
+
+    .project-link {
+        text-decoration: none;
+        color: #e81a32;
+        display: inline;
+        font-weight: bold;
+    }
+
+    .project-link:hover {
+        text-decoration: underline;
+    }
+
+    .nan-cell {
+        color: red;
+    }
+
+    .project-image {
+        max-width: 100%;
+        max-height: 200px; /* Forced max height */
+        display: block;
+        margin: 0 auto 10px auto; /* Centered the image and added margin bottom */
+        border-radius: 8px;
+    }
+
+    .project-table {
+        display: none;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .project-table th,
+    .project-table td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .project-table th {
+        background-color: #f4f4f4;
+    }
+
+    .view-toggle {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .view-toggle button {
+        background-color: #e81a32;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 0 10px;
+        transition: background-color 0.3s;
+    }
+
+    .view-toggle button:hover {
+        background-color: #bf1628;
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .button-container a button {
+        background-color: #e81a32;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .button-container a button:hover {
+        background-color: #bf1628;
+    }
+</style>
+
+<h1>Project List</h1>
+
+<div class="view-toggle">
+    <button onclick="toggleView('grid')">Grid View</button>
+    <button onclick="toggleView('table')">Table View</button>
+</div>
+
+<div id="project-grid" class="project-grid">
+    {% for row in table_rows %}
+    <div class="project-square">
+        {% if row['_id'] %}
+        <a href="{{ url_for('project_details', id=row['_id']) }}"></a>
+        {% endif %}
+        {% if row.imagepath is string %}
+        {% set image_filename = 'temp/' + row.imagepath %}
+        <img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image">
+        {% else %}
+        <img src="{{ url_for('static', filename='placeholder.webp') }}" alt="Project Image" class="project-image">
+        {% endif %}
+
+        <div class="project-title {% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            {{ row.title if row.title else 'NaN' }}
+        </div>
+        <div class="{% if row.beoogd_resultaat == none or row.beoogd_resultaat == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Beoogd Resultaat:</strong> {{ row.beoogd_resultaat if row.beoogd_resultaat else 'NaN' }}
+        </div>
+        <div class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Overkoepelende Project:</strong> {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<table id="project-table" class="project-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Beoogd Resultaat</th>
+            <th>Overkoepelende Project</th>
+            <th>Github Repo</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table_rows %}
+        <tr>
+            <td class="{% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+                {{ row.title if row.title else 'NaN' }}
+            </td>
+            <td class="{% if row.beoogd_resultaat == none or row.beoogd_resultaat == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+                {{ row.beoogd_resultaat if row.beoogd_resultaat else 'NaN' }}
+            </td>
+            <td class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+                {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
+            </td>
+            <td>
+                {% if row.githubrepo %}
+                {% set github_link = row.githubrepo|string %}
+                {% if 'github.com' in github_link %}
+                <a href="{{ row.githubrepo }}" class="project-link" target="_blank">{{ row.githubrepo }}</a>
+                {% else %}
+                <span class="nan-cell">NaN</span>
+                {% endif %}
+                {% else %}
+                <span class="nan-cell">NaN</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if row['_id'] %}
+                <a href="{{ url_for('project_details', id=row['_id']) }}" class="project-link">Details</a>
+                {% else %}
+                <span class="nan-cell">NaN</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="button-container">
+    <a href="{{ url_for('create_project') }}"><button>New Project</button></a>
+    <a href="{{ url_for('github_repos') }}"><button>View GitHub Repositories</button></a>
+</div>
+
+<script>
+    function toggleView(view) {
+        var grid = document.getElementById('project-grid');
+        var table = document.getElementById('project-table');
+        if (view === 'grid') {
+            grid.style.display = 'grid';
+            table.style.display = 'none';
+        } else {
+            grid.style.display = 'none';
+            table.style.display = 'table';
+        }
+    }
+</script>
+{% endblock %}

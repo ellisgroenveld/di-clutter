@@ -60,13 +60,18 @@ def is_valid_email(email):
 def convert_image_to_webp(image_stream):
     img = Image.open(image_stream)
     webp_io = io.BytesIO()
-    img.save(webp_io, format='webp', quality=80)
+    img.save(webp_io, format='webp', quality=60)
     webp_io.seek(0)
     return webp_io.read()
-    
+
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+    
+
+@app.route('/projects')
+def projects():
     projects = list(db.projects.find())
     for project in projects:
         if 'project_image' in project and project['project_image']:
@@ -80,13 +85,15 @@ def index():
     table_columns = df.columns.tolist()
     table_rows = df.to_dict(orient='records')
 
-    return render_template('index.html', table_columns=table_columns, table_rows=table_rows)
+    return render_template('projects.html', table_columns=table_columns, table_rows=table_rows)
 
 
 @app.route('/create_project', methods=['GET', 'POST'])
 def create_project():
     configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
     overkoepelende_projects = db.overkoepelende_projects.find()
+    onderzoekers = db.onderzoekers.find()
+    owe = db.owe.find()
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
@@ -94,6 +101,8 @@ def create_project():
         beoogd_resultaat = request.form['beoogd_resultaat']
         studentid = request.form['studentid']
         selected_overkoepelende_project = request.form['overkoepelende_project']
+        selected_onderzoeker = request.form['onderzoeker']
+        selected_owe = request.form['owe']
 
         dynamic_fields = {}
         for config in configurations:
@@ -136,11 +145,11 @@ def create_project():
 
         repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'project_image': image_binary, **dynamic_fields})
+        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
 
-        return redirect(url_for('index'))
+        return redirect(url_for('projects'))
     else:
-        return render_template('createproject.html', configurations=configurations, overkoepelende_projects=overkoepelende_projects)
+        return render_template('createproject.html', configurations=configurations, overkoepelende_projects=overkoepelende_projects, onderzoekers=onderzoekers, owe=owe)
 
 
 @app.route('/edit_project/<string:id>', methods=['GET', 'POST'])
@@ -185,7 +194,7 @@ def edit_project(id):
         image_binary = convert_image_to_webp(project_image.stream) 
 
         db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, 'project_image': image_binary, **dynamic_fields}})
-        return redirect(url_for('index'))
+        return redirect(url_for('projects'))
     else:
         return render_template('editproject.html', project=project, configurations=configurations, overkoepelende_projects=overkoepelende_projects)
 
@@ -213,7 +222,7 @@ def delete_project(id):
 
     db.projects.delete_one({'_id': ObjectId(id)})
 
-    return redirect(url_for('index'))
+    return redirect(url_for('projects'))
 
 
 @app.route('/project_details/<string:id>')

@@ -34,6 +34,11 @@
                 </div>
             {% elif key == 'githubrepo' %}
                 <div><a href="{{ value }}">{{ value }}</a></div>
+            {% elif key == 'imagepath' %}
+                {% set image_filename = 'temp/' + value %}
+                <div><img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image" width="200"></div>
+            {% elif key == 'project_image' %}
+                <div>Zie image path</div>
             {% else %}
                 <div>{{ value }}</div>
             {% endif %}

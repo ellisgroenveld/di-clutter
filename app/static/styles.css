@@ -1,25 +1,133 @@
+@font-face {
+    font-family: 'Bahnschrift';
+    src: url('../fonts/BAHNSCHRIFT.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* Basic CSS for the navigation bar */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Bahnschrift', sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #f0f0f0;
+    color: #333;
 }
+
 nav {
-    background-color: #333;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f0f0f0; /* Adjusted to a lighter shade of pink */
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-nav a {
-    float: left;
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 20px;
+
+
+.nav-logo img {
+    height: 40px; /* Keep the height */
+    width: auto; /* Remove this property */
+    max-width: 200px; /* Set a maximum width for the logo */
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: black; /* Set default color to black */
     text-decoration: none;
+    padding: 10px 15px;
+    transition: color 0.3s, background-color 0.3s;
+    border-radius: 5px;
 }
-nav a:hover {
-    background-color: #ddd;
-    color: black;
+
+.nav-links a:hover {
+    background-color: #e81a32;
+    color: white; /* Change text color to white on hover */
 }
+
+
+.red-bar {
+    width: 100%;
+    height: 5px;
+    background-color: #e81a32;
+}
+
 .content {
-    padding: 20px;
+    padding: 40px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.flashes {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.flashes li {
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.flashes .info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left: 5px solid #0c5460;
+}
+
+.flashes .warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 5px solid #856404;
+}
+
+.flashes .error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #721c24;
+}
+
+.flashes .success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #155724;
+}
+
+/* Additional modern touches */
+button {
+    background-color: #e81a32;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #bf1628;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #e81a32;
+    box-shadow: 0 0 5px rgba(232, 26, 50, 0.5);
 }

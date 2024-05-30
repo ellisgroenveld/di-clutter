@@ -4,175 +4,58 @@
 
 {% block content %}
 <style>
-    .project-grid {
+    .grid-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 20px;
+        padding: 20px;
     }
 
-    .project-square {
+    .grid-item {
         border: 1px solid #ccc;
         padding: 20px;
         text-align: center;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
     }
 
-    .project-title {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .project-link {
-        text-decoration: none;
-        color: blue;
-        display: inline;
-    }
-
-    .project-link:hover {
-        text-decoration: underline;
-    }
-
-    .nan-cell {
-        color: red;
-    }
-
-    .project-image {
-        max-width: 100%;
-        height: auto;
-        margin-bottom: 10px;
-    }
-
-    .project-table {
-        display: none;
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    .project-table th,
-    .project-table td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: left;
-    }
-
-    .project-table th {
-        background-color: #f4f4f4;
-    }
-
-    .view-toggle {
-        margin-bottom: 20px;
+    .grid-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
 </style>
 
-<h1>Project List</h1>
-
-<div class="view-toggle">
-    <button onclick="toggleView('grid')">Grid View</button>
-    <button onclick="toggleView('table')">Table View</button>
-</div>
-
-<div id="project-grid" class="project-grid">
-    {% for row in table_rows %}
-    <div class="project-square">
-        {% if row.imagepath is string %}
-        {% set image_filename = 'temp/' + row.imagepath %}
-        <img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image">
-        {% else %}
-        <img src="{{ url_for('static', filename='placeholder.webp') }}" alt="Project Image" class="project-image">
-        {% endif %}
-
-        <div class="project-title {% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-            {{ row.title if row.title else 'NaN' }}
-        </div>
-        <div class="{% if row.beoogd_resultaat == none or row.beoogd_resultaat == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-            <strong>Beoogd Resultaat:</strong> {{ row.beoogd_resultaat if row.beoogd_resultaat else 'NaN' }}
-        </div>
-        <div class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-            <strong>Overkoepelende Project:</strong> {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
-        </div>
-
-        {% if row.githubrepo %}
-        {% set github_link = row.githubrepo|string %}
-        {% if 'github.com' in github_link %}
-        <div><strong>Github Repo:</strong> <a href="{{ row.githubrepo }}" class="project-link" target="_blank">{{ row.githubrepo }}</a></div>
-        {% else %}
-        <div class="nan-cell"><strong>Github Repo:</strong> NaN</div>
-        {% endif %}
-        {% else %}
-        <div class="nan-cell"><strong>Github Repo:</strong> NaN</div>
-        {% endif %}
-        <div>
-            {% if row['_id'] %}
-            <a href="{{ url_for('project_details', id=row['_id']) }}" class="project-link">Details</a>
-            {% else %}
-            <span class="nan-cell">NaN</span>
-            {% endif %}
-        </div>
+<div class="grid-container">
+    <div class="grid-item" onclick="window.location.href='{{ url_for('create_project') }}';">
+        <h2>Create Project</h2>
+        <p>Click here to create a new project.</p>
     </div>
-    {% endfor %}
+    <div class="grid-item" onclick="window.location.href='{{ url_for('projects') }}';">
+        <h2>Manage Projects</h2>
+        <p>Click here to manage existing projects.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('configuration') }}';">
+        <h2>Manage Configurations</h2>
+        <p>Click here to manage configurations.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('owe') }}';">
+        <h2>Manage Onderwijseenheid</h2>
+        <p>Click here to manage onderwijseenheid.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('overkoepelende_projects') }}';">
+        <h2>Manage Overkoepelend Project</h2>
+        <p>Click here to manage overkoepelend project.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('onderzoekers') }}';">
+        <h2>Manage Onderzoekers</h2>
+        <p>Click here to manage onderzoekers.</p>
+    </div>
+    <div class="grid-item" onclick="window.open('https://github.com/Research-Center-Data-Intelligence', '_blank');">
+        <h2>Go to the GitHub</h2>
+        <p>Click here to go to the GitHub repository.</p>
+    </div>    
 </div>
-
-<table id="project-table" class="project-table">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Beoogd Resultaat</th>
-            <th>Overkoepelende Project</th>
-            <th>Github Repo</th>
-            <th>Details</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in table_rows %}
-        <tr>
-            <td class="{% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-                {{ row.title if row.title else 'NaN' }}
-            </td>
-            <td class="{% if row.beoogd_resultaat == none or row.beoogd_resultaat == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-                {{ row.beoogd_resultaat if row.beoogd_resultaat else 'NaN' }}
-            </td>
-            <td class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-                {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
-            </td>
-            <td>
-                {% if row.githubrepo %}
-                {% set github_link = row.githubrepo|string %}
-                {% if 'github.com' in github_link %}
-                <a href="{{ row.githubrepo }}" class="project-link" target="_blank">{{ row.githubrepo }}</a>
-                {% else %}
-                <span class="nan-cell">NaN</span>
-                {% endif %}
-                {% else %}
-                <span class="nan-cell">NaN</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if row['_id'] %}
-                <a href="{{ url_for('project_details', id=row['_id']) }}" class="project-link">Details</a>
-                {% else %}
-                <span class="nan-cell">NaN</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<br>
-<a href="{{ url_for('create_project') }}"><button>New Project</button></a> <br>
-<a href="{{ url_for('github_repos') }}"><button>View GitHub Repositories</button></a>
-
-<script>
-    function toggleView(view) {
-        var grid = document.getElementById('project-grid');
-        var table = document.getElementById('project-table');
-        if (view === 'grid') {
-            grid.style.display = 'grid';
-            table.style.display = 'none';
-        } else {
-            grid.style.display = 'none';
-            table.style.display = 'table';
-        }
-    }
-</script>
 {% endblock %}

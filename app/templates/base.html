@@ -7,78 +7,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <style>
-        nav {
-            display: flex;
-            align-items: center;
-            background-color: #333;
-            padding: 10px;
-        }
-
-        .nav-logo {
-            margin-right: 20px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 15px;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .red-bar {
-            width: 100%;
-            height: 10px;
-            background-color: red;
-        }
-
-        .content {
-            padding: 20px;
-        }
-
-        .flashes {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .flashes li {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .flashes .info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .flashes .warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .flashes .error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .flashes .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
+        
     </style>
 </head>
 <body>
     <nav>
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="nav-logo" width="50" height="50">
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="nav-logo" width="50" height="50">
+        </a>
         <div class="nav-links">
-            <a href="{{ url_for('index') }}">Projecten</a>
+            <a href="{{ url_for('projects') }}">Projecten</a>
             <a href="{{ url_for('github_repos') }}">GitHub</a>
             <a href="{{ url_for('configuration') }}">Configuration</a>
             <a href="{{ url_for('onderzoekers') }}">Onderzoekers</a>
