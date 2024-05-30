@@ -155,11 +155,14 @@
         <div class="project-title {% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
             {{ row.title if row.title else 'NaN' }}
         </div>
-        <div class="{% if row.beoogd_resultaat == none or row.beoogd_resultaat == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-            <strong>Beoogd Resultaat:</strong> {{ row.beoogd_resultaat if row.beoogd_resultaat else 'NaN' }}
-        </div>
         <div class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
             <strong>Overkoepelende Project:</strong> {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
+        </div>
+        <div class="{% if row.owe == none or row.owe == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Onderwijseenheid:</strong> {{ row.owe if row.owe else 'NaN' }}
+        </div>
+        <div class="{% if row.onderzoeker == none or row.onderzoeker == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Onderzoeker:</strong> {{ row.onderzoeker if row.onderzoeker else 'NaN' }}
         </div>
     </div>
     {% endfor %}

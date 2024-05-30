@@ -3,53 +3,68 @@
 {% block title %}Project Details{% endblock %}
 
 {% block content %}
-    <style>
-        .bold {
-            font-weight: bold;
-        }
-        .container {
-            margin-bottom: 20px;
-        }
-        .github-info {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-        }
-    </style>
+<style>
+    .bold {
+        font-weight: bold;
+    }
 
-    <h1>Project Details</h1>
-    {% for key, value in project.items() %}
-        <div class="container">
-            <div class="bold">{{ key.capitalize().replace('_', ' ') }}:</div>
-            {% if key == 'github_info' %}
-                <div class="github-info">
-                    {% for k, v in value.items() %}
-                        {% if k == 'contributors' %}
-                            <div><span class="bold">{{ k.capitalize().replace('_', ' ') }}:</span> {{ v | join(', ') }}</div>
-                        {% else %}
-                            <div><span class="bold">{{ k.capitalize().replace('_', ' ') }}:</span> {{ v }}</div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% elif key == 'githubrepo' %}
-                <div><a href="{{ value }}">{{ value }}</a></div>
-            {% elif key == 'imagepath' %}
-                {% set image_filename = 'temp/' + value %}
-                <div><img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image" width="200"></div>
-            {% elif key == 'project_image' %}
-                <div>Zie image path</div>
-            {% else %}
-                <div>{{ value }}</div>
-            {% endif %}
-        </div>
-    {% endfor %}
+    .container {
+        margin-bottom: 20px;
+    }
 
-    <br>
-    <a href="{{ url_for('edit_project', id=project['_id']) }}"><button>Edit</button></a>
-    <form action="{{ url_for('delete_project', id=project['_id']) }}" method="POST" style="display:inline;">
-        <button type="submit">Delete</button>
-    </form>
-    <br>
-    <a href="{{ url_for('index') }}"><button>Back to Project List</button></a>
+    .github-info {
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .nested-object {
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        margin-left: 20px;
+    }
+
+</style>
+
+<h1>Project Details</h1>
+{% for key, value in project.items() %}
+<div class="container">
+    <div class="bold">{{ key.capitalize().replace('_', ' ') }}:</div>
+    {% if key == 'github_info' %}
+    <div class="github-info">
+        {% for k, v in value.items() %}
+        {% if k == 'contributors' %}
+        <div><span class="bold">{{ k.capitalize().replace('_', ' ') }}:</span> {{ v | join(', ') }}</div>
+        {% else %}
+        <div><span class="bold">{{ k.capitalize().replace('_', ' ') }}:</span> {{ v }}</div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+        {% if value is mapping %}
+            <div class="nested-object">
+                {% for key2, value2 in value.items() %}
+                <div><span class="bold">{{ key2.capitalize().replace('_', ' ') }}:</span> {{ value2 }}</div>
+                {% endfor %}
+            </div>
+        {% elif key == 'project_image' %}
+            {% set image_filename = 'temp/' + value %}
+            <div><img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image"
+                    width="200"></div>
+        {% else %}
+            <div>{{ value }}</div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endfor %}
+
+<br>
+<a href="{{ url_for('edit_project', id=project['_id']) }}"><button>Edit</button></a>
+<form action="{{ url_for('delete_project', id=project['_id']) }}" method="POST" style="display:inline;">
+    <button type="submit">Delete</button>
+</form>
+<br>
+<a href="{{ url_for('index') }}"><button>Back to Project List</button></a>
 {% endblock %}

@@ -74,6 +74,18 @@ def index():
 def projects():
     projects = list(db.projects.find())
     for project in projects:
+        if 'overkoepelende_project' in project:
+            overkoepelende_project = db.overkoepelende_projects.find_one({'_id': ObjectId(project['overkoepelende_project'])})
+            project['overkoepelende_project'] = overkoepelende_project['research_project'] if overkoepelende_project else None
+
+        if 'onderzoeker' in project:
+            onderzoeker = db.onderzoekers.find_one({'_id': ObjectId(project['onderzoeker'])})
+            project['onderzoeker'] = onderzoeker['name'] if onderzoeker else None
+
+        if 'owe' in project:
+            owe_obj = db.owe.find_one({'_id': ObjectId(project['owe'])})
+            project['owe'] = owe_obj['name'] if owe_obj else None
+
         if 'project_image' in project and project['project_image']:
             with open('app/static/temp/' + str(project['_id']) + '.webp', 'wb') as f:
                 f.write(project['project_image'])
@@ -228,16 +240,28 @@ def delete_project(id):
 @app.route('/project_details/<string:id>')
 def project_details(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
+    
+    if not project:
+        # Handle case where project with given ID is not found
+        abort(404)
 
     if 'project_image' in project and project['project_image']:
-            with open('app/static/temp/' + str(project['_id']) + '.webp', 'wb') as f:
-                f.write(project['project_image'])
-            project['imagepath'] = str(project['_id']) + '.webp'
+        with open('app/static/temp/' + str(project['_id']) + '.webp', 'wb') as f:
+            f.write(project['project_image'])
+        project['project_image'] = str(project['_id']) + '.webp'
     
+    # Fetch related objects and add them to the project dictionary
     if 'overkoepelende_project' in project:
-        overkoepelende_project = db.overkoepelende_projects.find_one({'_id': project['overkoepelende_project']})
-        if overkoepelende_project:
-            project['overkoepelende_project_name'] = overkoepelende_project.get('research_project', 'Unknown Project')
+        overkoepelende_project = db.overkoepelende_projects.find_one({'_id': ObjectId(project['overkoepelende_project'])})
+        project['overkoepelende_project'] = overkoepelende_project
+
+    if 'onderzoeker' in project:
+        onderzoeker = db.onderzoekers.find_one({'_id': ObjectId(project['onderzoeker'])})
+        project['onderzoeker'] = onderzoeker
+
+    if 'owe' in project:
+        owe_obj = db.owe.find_one({'_id': ObjectId(project['owe'])})
+        project['owe'] = owe_obj
     
     if 'githubrepo' in project:
         token = os.environ.get('GH_TOKEN2')
@@ -260,6 +284,7 @@ def project_details(id):
             'contributors': contributors_list,
             'topics': ', '.join(repo.topics)
         }
+    
     
     return render_template('projectdetails.html', project=project)
 
@@ -632,19 +657,41 @@ def create_owe():
 @app.route('/edit_owe/<string:id>', methods=['GET', 'POST'])
 def edit_owe(id):
     owe = db.owe.find_one({'_id': ObjectId(id)})
-    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'owe'})  
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'owe'})
+
     if request.method == 'POST':
+        name = request.form['name']
+        
+        # Check for duplicate name
+        existing_owe = db.owe.find_one({'name': name})
+        if existing_owe and str(existing_owe['_id']) != id:
+            flash(f"The OWE with name '{name}' already exists.", 'error') # type: ignore
+            return render_template('editowe.html', owe=owe, configurations=configurations)
+        
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
             if attribute_name in owe:
                 attribute_type = config['type']
-                if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
+                if attribute_type == 'String':
                     dynamic_fields[attribute_name] = request.form.get(attribute_name)
+                elif attribute_type == 'Integer':
+                    dynamic_fields[attribute_name] = int(request.form.get(attribute_name))
+                elif attribute_type == 'Double':
+                    dynamic_fields[attribute_name] = float(request.form.get(attribute_name))
+                elif attribute_type == 'Boolean':
+                    dynamic_fields[attribute_name] = request.form.get(attribute_name) == 'on'
+                elif attribute_type == 'Date':
+                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
+                elif attribute_type in ['ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
+                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
+        
+        dynamic_fields['name'] = name
         db.owe.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
-        return redirect(url_for('owe'))
+        return redirect(url_for('owe'))  # Change to your actual OWE list route
     else:
         return render_template('editowe.html', owe=owe, configurations=configurations)
+
 
 
 
