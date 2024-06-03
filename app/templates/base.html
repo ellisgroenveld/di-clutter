@@ -1,3 +1,4 @@
+<!-- base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +7,9 @@
     <title>{% block title %}My Project{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="https://kit.fontawesome.com/9062789aa8.js" crossorigin="anonymous"></script>
     <style>
-        
+        /* Add your custom styles here */
     </style>
 </head>
 <body>
@@ -37,5 +39,29 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </div>
+    <div class="red-bar"></div>
+    <!-- Footer -->
+    <footer>
+        <div>
+            <h1>Contact</h1> <br>
+            <p>Zuyd Hogeschool</p>
+            <p>Nieuw Eyckholt 300</p>
+            <p>Tel: <a href="tel:+31454006400">045 400 6400</a></p>
+            <p>E-mail: <a href="mailto:lectoraat.dataintelligence@zuyd.nl">lectoraat.dataintelligence@zuyd.nl</a></p>
+        </div>
+        <div>
+            <h1>Bezoekadres</h1> <br>
+            <p>Data Intelligence lab (dilab)</p>
+            <p><a href="https://maps.google.com?q=50.8827158,5.9729764" target="_blank">Brightlands Smart Services Campus<br>Smedestraat 2<br>6411 CR Heerlen</a></p>
+
+        </div>
+        <div>
+            <h1>Socials</h1>
+            <br>
+            <p><a href="https://www.youtube.com/@dilabzuyd" target="_blank"><i class="fab fa-youtube"></i> YouTube</a></p>
+            <p><a href="https://www.linkedin.com/company/lectoraat-data-intelligence/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a></p>
+            <p><a href="https://www.instagram.com/dilabzuyd/" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></p>
+        </div>        
+    </footer>
 </body>
 </html>

@@ -22,9 +22,12 @@
         {% endfor %}
     </select> <br><br>
 
-    <input type="checkbox" id="inuse_checkbox" name="inuse" {% if configuration.inuse %}checked{% endif %}>
-    <label for="inuse_checkbox">In Gebruik</label> <br><br>
 
+    <div class="checkbox-container">
+        <input type="checkbox" id="inuse_checkbox" name="inuse" {% if configuration.inuse %}checked{% endif %}>
+        <label for="inuse_checkbox">In Gebruik</label> <br><br>
+    </div>
+    
     {% if configuration.type == 'Array' %}
         <div id="array_input_container">
             <label for="array_contents">Array Contents:</label>
