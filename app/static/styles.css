@@ -131,3 +131,69 @@ input:focus, textarea:focus {
     border-color: #e81a32;
     box-shadow: 0 0 5px rgba(232, 26, 50, 0.5);
 }
+
+
+/* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures rounded corners are applied */
+}
+
+/* Table header styling */
+table th {
+    background-color: #f4f4f4;
+    color: #333;
+    text-align: left;
+    padding: 10px;
+    font-weight: bold;
+}
+
+/* Table cell styling */
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Add zebra striping for table rows */
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Table row hover effect */
+table tr:hover {
+    background-color: #d9e8ff;
+}
+
+/* Remove bottom border for the last row */
+table tr:last-child td {
+    border-bottom: none;
+}
+
+
+
+/* Responsive table */
+@media (max-width: 768px) {
+    table, table th, table td {
+        display: block;
+        width: 100%;
+    }
+
+    table th, table td {
+        padding: 10px 5px;
+    }
+
+    table tr {
+        margin-bottom: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    table tr:hover {
+        background-color: transparent; /* Disable hover effect on small screens */
+    }
+}

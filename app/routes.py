@@ -169,6 +169,8 @@ def edit_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
     configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
     overkoepelende_projects = db.overkoepelende_projects.find()
+    onderzoekers = db.onderzoekers.find()
+    owe = db.owe.find()
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
@@ -176,6 +178,8 @@ def edit_project(id):
         beoogd_resultaat = request.form['beoogd_resultaat']
         studentid = request.form['studentid']
         selected_overkoepelende_project = request.form['overkoepelende_project']
+        selected_onderzoeker = request.form['onderzoeker']
+        selected_owe = request.form['owe']
 
         dynamic_fields = {}
         for config in configurations:
@@ -202,13 +206,10 @@ def edit_project(id):
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
 
-        project_image = request.files.get('project_image')
-        image_binary = convert_image_to_webp(project_image.stream) 
-
-        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, 'project_image': image_binary, **dynamic_fields}})
+        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, **dynamic_fields}})
         return redirect(url_for('projects'))
     else:
-        return render_template('editproject.html', project=project, configurations=configurations, overkoepelende_projects=overkoepelende_projects)
+        return render_template('editproject.html', project=project, configurations=configurations, overkoepelende_projects=overkoepelende_projects, onderzoekers=onderzoekers, owe=owe)
 
 
 @app.route('/delete_project/<string:id>', methods=['POST'])
