@@ -172,9 +172,9 @@
     <thead>
         <tr>
             <th>Title</th>
-            <th>Beoogd Resultaat</th>
+            <th>Onderwijseenheid</th>
             <th>Overkoepelende Project</th>
-            <th>Github Repo</th>
+            <th>Onderzoeker</th>
             <th>Details</th>
         </tr>
     </thead>
@@ -184,23 +184,14 @@
             <td class="{% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
                 {{ row.title if row.title else 'NaN' }}
             </td>
-            <td class="{% if row.beoogd_resultaat == none or row.beoogd_resultaat == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
-                {{ row.beoogd_resultaat if row.beoogd_resultaat else 'NaN' }}
+            <td class="{% if row.owe == none or row.owe == 'NaN' or row.owe == 'nan' %} nan-cell {% endif %}">
+                {{ row.owe if row.owe else 'NaN' }}
             </td>
             <td class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
                 {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
             </td>
-            <td>
-                {% if row.githubrepo %}
-                {% set github_link = row.githubrepo|string %}
-                {% if 'github.com' in github_link %}
-                <a href="{{ row.githubrepo }}" class="project-link" target="_blank">{{ row.githubrepo }}</a>
-                {% else %}
-                <span class="nan-cell">NaN</span>
-                {% endif %}
-                {% else %}
-                <span class="nan-cell">NaN</span>
-                {% endif %}
+            <td class="{% if row.onderzoeker == none or row.onderzoeker == 'NaN' or row.onderzoeker == 'nan' %} nan-cell {% endif %}">
+                {{ row.onderzoeker if row.onderzoeker else 'NaN' }}
             </td>
             <td>
                 {% if row['_id'] %}
