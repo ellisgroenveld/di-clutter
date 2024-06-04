@@ -202,7 +202,6 @@ table tr:last-child td {
 footer {
     background-color: #f9f9f9;
     color: #333; /* Set default text color to #333 */
-    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -230,6 +229,7 @@ footer a:hover {
 
 footer div {
     width: 30%; /* Adjusted for three divs */
+    padding: 20px;
     margin-bottom: 20px;
 }
 
@@ -258,7 +258,7 @@ body.full-height footer {
 .project-square {
     border: 1px solid #ccc;
     padding: 20px;
-    text-align: center;
+    text-align: left;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -393,4 +393,11 @@ h1.centeredh1 {
     align-items: flex-start; /* Align items at the start */
     margin-bottom: 0px; /* Adjust margin as needed */
     width: 100px;
+}
+
+
+.social-icon {
+    width: 1em; /* Adjust as needed based on text size and icon size preference */
+    height: 1em; /* Adjust as needed based on text size and icon size preference */
+    margin-right: 5px; /* Add spacing between icon and text (optional) */
 }

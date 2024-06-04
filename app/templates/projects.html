@@ -23,7 +23,7 @@
         {% set image_filename = 'temp/' + row.imagepath %}
         <img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image">
         {% else %}
-        <img src="{{ url_for('static', filename='placeholder.webp') }}" alt="Project Image" class="project-image">
+        <img src="{{ url_for('static', filename='placeholder.webp') }}" alt="Project Image" class="project-image"> 
         {% endif %}
 
         <div class="project-title {% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">

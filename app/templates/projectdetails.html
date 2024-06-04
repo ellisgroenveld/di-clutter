@@ -53,6 +53,8 @@
             {% set image_filename = 'temp/' + value %}
             <div><img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image"
                     width="200"></div>
+        {% elif key == 'githubrepo' %}
+        <div><a href="{{ value }}">{{ value }}</a></div>
         {% else %}
             <div>{{ value }}</div>
         {% endif %}
@@ -61,10 +63,9 @@
 {% endfor %}
 
 <br>
-<a href="{{ url_for('edit_project', id=project['_id']) }}"><button>Edit</button></a>
+<a href="{{ url_for('edit_project', id=project['_id']) }}"><button>Edit</button></a> 
 <form action="{{ url_for('delete_project', id=project['_id']) }}" method="POST" style="display:inline;">
     <button type="submit">Delete</button>
 </form>
-<br>
 <a href="{{ url_for('index') }}"><button>Back to Project List</button></a>
 {% endblock %}

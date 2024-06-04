@@ -157,7 +157,7 @@ def create_project():
 
         repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        db.projects.insert_one({'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
+        db.projects.insert_one({'title': name, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
 
         return redirect(url_for('projects'))
     else:

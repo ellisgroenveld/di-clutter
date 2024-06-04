@@ -29,8 +29,7 @@
                             <td>{{ value }}</td>
                         {% endif %}
                     {% endfor %}
-                    <td> <a href="{{ url_for('editconfig', id=row['_id']) }}">Edit</a></td>
-                    <td>
+                    <td> <a href="{{ url_for('editconfig', id=row['_id']) }}"><button>Edit</button></a> |
                         <form action="{{ url_for('deleteconfig', id=row['_id']) }}" method="POST" style="display:inline;">
                             <button type="submit">Delete</button>
                         </form>

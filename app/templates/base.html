@@ -7,7 +7,6 @@
     <title>{% block title %}My Project{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <script src="https://kit.fontawesome.com/9062789aa8.js" crossorigin="anonymous"></script>
     <style>
         /* Add your custom styles here */
     </style>
@@ -58,10 +57,22 @@
         <div>
             <h1>Socials</h1>
             <br>
-            <p><a href="https://www.youtube.com/@dilabzuyd" target="_blank"><i class="fab fa-youtube"></i> YouTube</a></p>
-            <p><a href="https://www.linkedin.com/company/lectoraat-data-intelligence/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a></p>
-            <p><a href="https://www.instagram.com/dilabzuyd/" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></p>
-        </div>        
+            <p>
+              <a href="https://www.youtube.com/@dilabzuyd" target="_blank">
+                <img src="{{ url_for('static', filename='youtube.svg') }}" alt="YouTube" class="social-icon"> YouTube
+              </a>
+            </p>
+            <p>
+              <a href="https://www.linkedin.com/company/lectoraat-data-intelligence/" target="_blank">
+                <img src="{{ url_for('static', filename='linkedin.svg') }}" alt="LinkedIn" class="social-icon"> LinkedIn
+              </a>
+            </p>
+            <p>
+              <a href="https://www.instagram.com/dilabzuyd/" target="_blank">
+                <img src="{{ url_for('static', filename='instagram.svg') }}" alt="Instagram" class="social-icon"> Instagram
+              </a>
+            </p>
+          </div>    
     </footer>
 </body>
 </html>
