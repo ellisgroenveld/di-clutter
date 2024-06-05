@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, send_file, jsonify, abort
 from app import app
 from ghapi.all import GhApi
 import os
@@ -10,6 +10,10 @@ from email_validator import validate_email, EmailNotValidError
 from urllib.parse import urlparse
 from PIL import Image
 import io
+import zipfile
+import json
+import csv
+
 
 if not os.path.exists('app/static/temp'):
     os.makedirs('app/static/temp')
@@ -603,7 +607,7 @@ def delete_overkoepelende_project(id):
 
 @app.route('/owe')
 def owe():
-    owe_data = db.owe.find()  # Replace 'owe' with the actual collection name if different
+    owe_data = db.owe.find() 
     
     df = pd.DataFrame(list(owe_data))
     
@@ -737,3 +741,114 @@ def delete_repo(repo_url):
 
     return redirect(url_for('github_repos'))
 
+
+
+@app.route('/downloads')
+def downloads():
+    return render_template('downloads.html')
+
+@app.route('/downloadexcel')
+def downloadexcel():
+    projects = list(db.projects.find())
+    overkoepelende_projects = list(db.overkoepelende_projects.find())
+    configurations = list(db.configurations.find())
+    onderzoekers = list(db.onderzoekers.find())
+    owe_data = list(db.owe.find())
+
+    gh = GhApi()
+    token = os.environ.get('GH_TOKEN2')
+    gh = GhApi(token=token)
+    org = 'DIClutter'
+    repos = gh.repos.list_for_org(org)
+
+    excel_buffer = io.BytesIO()
+    with pd.ExcelWriter(excel_buffer) as writer:
+        pd.DataFrame(projects).to_excel(writer, sheet_name='Projects', index=False)
+        pd.DataFrame(overkoepelende_projects).to_excel(writer, sheet_name='Overkoepelende Projects', index=False)
+        pd.DataFrame(configurations).to_excel(writer, sheet_name='Configurations', index=False)
+        pd.DataFrame(onderzoekers).to_excel(writer, sheet_name='Onderzoekers', index=False)
+        pd.DataFrame(owe_data).to_excel(writer, sheet_name='Owe Data', index=False)
+        pd.DataFrame(repos).to_excel(writer, sheet_name='GithubRepos', index=False)
+
+    excel_buffer.seek(0)
+    return send_file(excel_buffer, as_attachment=True, attachment_filename='mongo_data.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@app.route('/download_csv_zip')
+def download_csv_zip():
+    projects = pd.DataFrame(list(db.projects.find()))
+    overkoepelende_projects = pd.DataFrame(list(db.overkoepelende_projects.find()))
+    configurations = pd.DataFrame(list(db.configurations.find()))
+    onderzoekers = pd.DataFrame(list(db.onderzoekers.find()))
+    owe_data = pd.DataFrame(list(db.owe.find()))
+
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        projects_csv = projects.to_csv(index=False, encoding='utf-8-sig')
+        zip_file.writestr('projects.csv', projects_csv)
+        
+        overkoepelende_projects_csv = overkoepelende_projects.to_csv(index=False, encoding='utf-8-sig')
+        zip_file.writestr('overkoepelende_projects.csv', overkoepelende_projects_csv)
+        
+        configurations_csv = configurations.to_csv(index=False, encoding='utf-8-sig')
+        zip_file.writestr('configurations.csv', configurations_csv)
+        
+        onderzoekers_csv = onderzoekers.to_csv(index=False, encoding='utf-8-sig')
+        zip_file.writestr('onderzoekers.csv', onderzoekers_csv)
+        
+        owe_data_csv = owe_data.to_csv(index=False, encoding='utf-8-sig')
+        zip_file.writestr('owe_data.csv', owe_data_csv)
+
+    zip_buffer.seek(0)
+    return send_file(zip_buffer, as_attachment=True, attachment_filename='mongo_data.zip', mimetype='application/zip')
+
+
+@app.route('/download_json')
+def download_json():
+    projects = list(db.projects.find())
+
+    for project in projects:
+        if 'project_image' in project and project['project_image']:
+            project['project_image'] = str(project['_id']) + '.webp'
+    
+        if 'overkoepelende_project' in project:
+            overkoepelende_project = db.overkoepelende_projects.find_one({'_id': ObjectId(project['overkoepelende_project'])})
+            overkoepelende_project.pop('_id', None)
+            project['overkoepelende_project'] = overkoepelende_project
+
+        if 'onderzoeker' in project:
+            onderzoeker = db.onderzoekers.find_one({'_id': ObjectId(project['onderzoeker'])})
+            onderzoeker.pop('_id', None)
+            project['onderzoeker'] = onderzoeker
+
+        if 'owe' in project:
+            owe_obj = db.owe.find_one({'_id': ObjectId(project['owe'])})
+            owe_obj.pop('_id', None)
+            project['owe'] = owe_obj
+        
+        if 'githubrepo' in project:
+            token = os.environ.get('GH_TOKEN2')
+            gh = GhApi(token=token)
+            
+            github_url = project['githubrepo']
+            owner, repo_name = github_url.split('/')[-2:]
+
+            repo = gh.repos.get(owner=owner, repo=repo_name)
+
+            contributors = gh.repos.list_contributors(owner=owner, repo=repo_name)
+            contributors_list = [contributor.login for contributor in contributors]
+
+            project['github_info'] = {
+                'name': repo.name,
+                'description': repo.description,
+                'owner': repo.owner.login,
+                'visibility': 'Private' if repo.private else 'Public',
+                'language': repo.language,
+                'contributors': contributors_list,
+                'topics': ', '.join(repo.topics)
+            }
+        
+        project.pop('_id', None)
+
+    
+    return jsonify(projects)
