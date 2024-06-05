@@ -371,9 +371,10 @@ def editconfig(id):
         }
         
         if attribute_type == 'Array':
-            array_contents = request.form.getlist('array_contents')
+            array_contents = request.form.getlist('array_contents[]')
             update_data['ArrayContents'] = array_contents
         
+
         db.configurations.update_one({'_id': ObjectId(id)}, {'$set': update_data})
         return redirect(url_for('configuration'))
     else:
