@@ -11,8 +11,7 @@ from urllib.parse import urlparse
 from PIL import Image
 import io
 import zipfile
-import json
-import csv
+import math
 
 
 if not os.path.exists('app/static/temp'):
@@ -77,6 +76,9 @@ def index():
 @app.route('/projects')
 def projects():
     projects = list(db.projects.find())
+    overprojects = list(db.overkoepelende_projects.find())
+    overprojects.sort(key=lambda x: x['research_project'].lower())
+
     for project in projects:
         if 'overkoepelende_project' in project:
             overkoepelende_project = db.overkoepelende_projects.find_one({'_id': ObjectId(project['overkoepelende_project'])})
@@ -96,20 +98,24 @@ def projects():
             project['imagepath'] = str(project['_id']) + '.webp'
 
     df = pd.DataFrame(projects)
-
-
     table_columns = df.columns.tolist()
     table_rows = df.to_dict(orient='records')
 
-    return render_template('projects.html', table_columns=table_columns, table_rows=table_rows)
+    return render_template(
+        'projects.html',
+        table_columns=table_columns,
+        table_rows=table_rows,
+        overprojects=overprojects 
+    )
+
 
 
 @app.route('/create_project', methods=['GET', 'POST'])
 def create_project():
-    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
-    overkoepelende_projects = db.overkoepelende_projects.find()
-    onderzoekers = db.onderzoekers.find()
-    owe = db.owe.find()
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'}).sort(key=lambda x: x['research_project'].lower())
+    overkoepelende_projects = db.overkoepelende_projects.find().sort(key=lambda x: x['research_project'].lower())
+    onderzoekers = db.onderzoekers.find().sort(key=lambda x: x['research_project'].lower())
+    owe = db.owe.find().sort(key=lambda x: x['research_project'].lower())
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
@@ -171,10 +177,10 @@ def create_project():
 @app.route('/edit_project/<string:id>', methods=['GET', 'POST'])
 def edit_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
-    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
-    overkoepelende_projects = db.overkoepelende_projects.find()
-    onderzoekers = db.onderzoekers.find()
-    owe = db.owe.find()
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'}).sort(key=lambda x: x['research_project'].lower())
+    overkoepelende_projects = db.overkoepelende_projects.find().sort(key=lambda x: x['research_project'].lower())
+    onderzoekers = db.onderzoekers.find().sort(key=lambda x: x['research_project'].lower())
+    owe = db.owe.find().sort(key=lambda x: x['research_project'].lower())
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
@@ -349,7 +355,17 @@ def makeconfig():
         return render_template('makeconfig.html', bson_types=bson_types, collections=collection_names)
 
 
-
+@app.route('/config_inuse/<string:id>', methods=['POST'])
+def config_inuse(id):
+    config = db.configurations.find_one({'_id': ObjectId(id)})
+    if config:
+        inuse = config.get('inuse', math.nan)
+        # Check if inuse is NaN or False, set to True, else set to False
+        if inuse != inuse or not inuse:  # Check for NaN or False
+            db.configurations.update_one({'_id': ObjectId(id)}, {'$set': {'inuse': True}})
+        else:
+            db.configurations.update_one({'_id': ObjectId(id)}, {'$set': {'inuse': False}})
+    return redirect(url_for('configuration'))
 
 
 
@@ -390,13 +406,6 @@ def editconfig(id):
 
 
 
-
-
-
-@app.route('/deleteconfig/<string:id>', methods=['POST'])
-def deleteconfig(id):
-    db.configurations.delete_one({'_id': ObjectId(id)})
-    return redirect(url_for('configuration'))
 
 @app.route('/onderzoekers')
 def onderzoekers():
@@ -508,12 +517,6 @@ def edit_onderzoeker(id):
 
     
 
-@app.route('/delete_onderzoeker/<string:id>', methods=['POST'])
-def delete_onderzoeker(id):
-    # Assuming db is your MongoDB database connection
-    db.onderzoekers.delete_one({'_id': ObjectId(id)})
-    return redirect(url_for('onderzoekers'))
-
 @app.route('/overkoepelende_projects')
 def overkoepelende_projects():
     projects = db.overkoepelende_projects.find()
@@ -598,10 +601,6 @@ def edit_overkoepelende_project(id):
         return render_template('editover.html', project=project, configurations=configurations)
 
 
-@app.route('/delete_overkoepelende_project/<string:id>', methods=['POST'])
-def delete_overkoepelende_project(id):
-    db.overkoepelende_projects.delete_one({'_id': ObjectId(id)})
-    return redirect(url_for('overkoepelende_projects'))
 
 
 
@@ -700,11 +699,6 @@ def edit_owe(id):
 
 
 
-
-@app.route('/delete_owe/<string:id>', methods=['POST'])
-def delete_owe(id):
-    db.owe.delete_one({'_id': ObjectId(id)})
-    return redirect(url_for('owe'))
 
 
 

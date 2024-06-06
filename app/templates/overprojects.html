@@ -21,9 +21,7 @@
                     {% endfor %}
                     <td> <!-- Actions -->
                         <a href="{{ url_for('edit_overkoepelende_project', id=row['_id']) }}"><button>Edit</button></a> |
-                        <form action="{{ url_for('delete_overkoepelende_project', id=row['_id']) }}" method="POST" style="display:inline;">
-                            <button type="submit">Delete</button>
-                        </form>
+                        
                     </td>
                 </tr>
             {% endfor %}
