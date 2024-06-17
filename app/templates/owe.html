@@ -29,7 +29,7 @@
                             <td>{{ value }}</td>
                         {% endif %}
                     {% endfor %}
-                    <td> <a href="{{ url_for('edit_owe', id=row['_id']) }}">Edit</a> |
+                    <td><a href="{{ url_for('edit_owe', id=row['_id']) }}"><button>Edit</button></a> |
                     </td>
                 </tr>
             {% endfor %}

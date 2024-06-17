@@ -77,8 +77,6 @@ def index():
 def projects():
     projects = list(db.projects.find())
     overprojects = list(db.overkoepelende_projects.find())
-    overprojects.sort(key=lambda x: x['research_project'].lower())
-
     for project in projects:
         if 'overkoepelende_project' in project:
             overkoepelende_project = db.overkoepelende_projects.find_one({'_id': ObjectId(project['overkoepelende_project'])})
@@ -112,10 +110,10 @@ def projects():
 
 @app.route('/create_project', methods=['GET', 'POST'])
 def create_project():
-    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'}).sort(key=lambda x: x['research_project'].lower())
-    overkoepelende_projects = db.overkoepelende_projects.find().sort(key=lambda x: x['research_project'].lower())
-    onderzoekers = db.onderzoekers.find().sort(key=lambda x: x['research_project'].lower())
-    owe = db.owe.find().sort(key=lambda x: x['research_project'].lower())
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
+    overkoepelende_projects = db.overkoepelende_projects.find()
+    onderzoekers = db.onderzoekers.find()
+    owe = db.owe.find()
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
@@ -177,10 +175,10 @@ def create_project():
 @app.route('/edit_project/<string:id>', methods=['GET', 'POST'])
 def edit_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
-    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'}).sort(key=lambda x: x['research_project'].lower())
-    overkoepelende_projects = db.overkoepelende_projects.find().sort(key=lambda x: x['research_project'].lower())
-    onderzoekers = db.onderzoekers.find().sort(key=lambda x: x['research_project'].lower())
-    owe = db.owe.find().sort(key=lambda x: x['research_project'].lower())
+    configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'projects'})
+    overkoepelende_projects = db.overkoepelende_projects.find()
+    onderzoekers = db.onderzoekers.find()
+    owe = db.owe.find()
     if request.method == 'POST':
         name = request.form['title']
         aanleiding = request.form['aanleiding']
