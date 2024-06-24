@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Downloads</h1>  <br>
+    
+    <h2>Download MongoDB Data & Github als aparte CSV bestanden in een zip </h2>  <br>
+    <form action="{{ url_for('download_csv_zip') }}" method="get">
+        <button type="submit">Download ZIP</button>
+    </form> <br> <br> 
+
+    <h2>Bekijk en download MongoDB als JSON, met alle objectrelaties in stand gehouden</h2> <br>
+    <form action="{{ url_for('download_json') }}" method="get">
+        <button type="submit">Download/View JSON</button>
+    </form> <br> <br>
+
+    <h2>Download MongoDB & Github als Excel data, pagina voor elke collection</h2> <br>
+    <form action="{{ url_for('downloadexcel') }}" method="get">
+        <button type="submit">Download XLSX</button>
+    </form> <br> 
+{% endblock %}

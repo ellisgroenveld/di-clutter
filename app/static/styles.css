@@ -1,0 +1,456 @@
+@font-face {
+    font-family: 'Bahnschrift';
+    src: url('../fonts/BAHNSCHRIFT.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Basic CSS for the navigation bar */
+body {
+    font-family: 'Bahnschrift', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f0f0f0; /* Adjusted to a lighter shade of pink */
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.nav-logo img {
+    height: 40px; /* Keep the height */
+    width: auto; /* Remove this property */
+    max-width: 200px; /* Set a maximum width for the logo */
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: black; /* Set default color to black */
+    text-decoration: none;
+    padding: 10px 15px;
+    transition: color 0.3s, background-color 0.3s;
+    border-radius: 5px;
+}
+
+.nav-links a:hover {
+    background-color: #e81a32;
+    color: white; /* Change text color to white on hover */
+}
+
+
+.red-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #e81a32;
+}
+
+.content {
+    padding: 40px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.flashes {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.flashes li {
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.flashes .info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left: 5px solid #0c5460;
+}
+
+.flashes .warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 5px solid #856404;
+}
+
+.flashes .error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #721c24;
+}
+
+.flashes .success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #155724;
+}
+
+/* Additional modern touches */
+button {
+    background-color: #e81a32;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #bf1628;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #e81a32;
+    box-shadow: 0 0 5px rgba(232, 26, 50, 0.5);
+}
+
+
+/* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures rounded corners are applied */
+}
+
+/* Table header styling */
+table th {
+    background-color: #f4f4f4;
+    color: #333;
+    text-align: left;
+    padding: 10px;
+    font-weight: bold;
+}
+
+/* Table cell styling */
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Add zebra striping for table rows */
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Table row hover effect */
+table tr:hover {
+    background-color: #d9e8ff;
+}
+
+/* Remove bottom border for the last row */
+table tr:last-child td {
+    border-bottom: none;
+}
+
+
+
+/* Responsive table */
+@media (max-width: 768px) {
+    table, table th, table td {
+        display: block;
+        width: 100%;
+    }
+
+    table th, table td {
+        padding: 10px 5px;
+    }
+
+    table tr {
+        margin-bottom: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    table tr:hover {
+        background-color: transparent; /* Disable hover effect on small screens */
+    }
+}
+
+
+footer {
+    background-color: #f9f9f9;
+    color: #333; /* Set default text color to #333 */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    font-size: 14px;
+    width: 100%;
+}
+
+footer h1 {
+    color: #e81a32; /* Set h1 color to red */
+}
+
+footer a {
+    color: #e81a32; /* Set link text color */
+    text-decoration: none; /* Remove default underline */
+    outline: none; /* Remove default outline */
+    border-bottom: 1px solid #e81a32; /* Add bottom border as outline */
+    transition: border-bottom 0.3s; /* Add transition effect */
+}
+
+footer a:hover {
+    border-bottom: 1px solid transparent; /* Hide bottom border on hover */
+}
+
+
+footer div {
+    width: 30%; /* Adjusted for three divs */
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+footer div p {
+    margin: 0;
+    line-height: 1.5;
+    font-size: large;
+}
+
+
+/* Adjustments when body doesn't take up full page */
+body.full-height {
+    flex-direction: column;
+}
+
+body.full-height footer {
+    margin-top: auto;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.project-square {
+    border: 1px solid #ccc;
+    padding: 20px;
+    text-align: left;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+}
+
+.project-square:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.project-square a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.project-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.project-link {
+    text-decoration: none;
+    color: #e81a32;
+    display: inline;
+    font-weight: bold;
+}
+
+.project-link:hover {
+    text-decoration: underline;
+}
+
+.nan-cell {
+    color: red;
+}
+
+.project-image {
+    max-width: 100%;
+    max-height: 200px;
+    display: block;
+    margin: 0 auto 10px auto;
+    border-radius: 8px;
+}
+
+.project-table {
+    display: none;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.project-table th,
+.project-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+.project-table th {
+    background-color: #f4f4f4;
+}
+
+.view-toggle {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.view-toggle button {
+    background-color: #e81a32;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: background-color 0.3s;
+}
+
+.view-toggle button:hover {
+    background-color: #bf1628;
+}
+
+h1.centeredh1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.button-container a button {
+    background-color: #e81a32;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+    transition: background-color 0.3s;
+}
+
+.button-container a button:hover {
+    background-color: #bf1628;
+}
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:hover {
+    background-color: #d9e8ff;
+}
+
+.clickable-row td {
+    padding: 15px;
+}
+
+
+.checkbox-container {
+    display: flex;
+    align-items: flex-start; /* Align items at the start */
+    margin-bottom: 0px; /* Adjust margin as needed */
+    width: 100px;
+}
+
+
+.social-icon {
+    width: 1em; /* Adjust as needed based on text size and icon size preference */
+    height: 1em; /* Adjust as needed based on text size and icon size preference */
+    margin-right: 5px; /* Add spacing between icon and text (optional) */
+}
+
+
+/* Style for the select element */
+select {
+    appearance: none; /* Remove default arrow */
+    -webkit-appearance: none; /* For Safari */
+    -moz-appearance: none; /* For Firefox */
+    background-color: #f5f5f5; /* Light grey */
+    border: 1px solid #ccc; /* Light grey border */
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 16px;
+    color: #333; /* Dark grey for text */
+    width: 100%;
+    max-width: 300px; /* Optional max width */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: all 0.3s ease; /* Smooth transition for hover/focus states */
+}
+
+/* Style for the options within the select */
+select option {
+    background-color: #ffffff; /* White background for options */
+    color: #333; /* Dark grey text */
+}
+
+/* Style for the select element on hover */
+select:hover {
+    border-color: #e53935; /* Red border on hover */
+}
+
+/* Style for the select element when focused */
+select:focus {
+    border-color: #e53935; /* Red border on focus */
+    box-shadow: 0 0 5px rgba(229, 57, 53, 0.5); /* Red shadow on focus */
+    outline: none; /* Remove default outline */
+}
+
+/* Custom arrow for the select dropdown */
+select::after {
+    content: '▼'; /* Unicode for down arrow */
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none; /* Ensure the arrow is not clickable */
+    color: #333; /* Dark grey for the arrow */
+}
+
+/* Container for positioning the custom arrow */
+select-container {
+    position: relative;
+    display: inline-block;
+}

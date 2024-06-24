@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}OWE List{% endblock %}
+
+{% block content %}
+    <style>
+        .nan-cell {
+            color: red; /* Set the color to red */
+        }
+    </style>
+    
+    <h1>OWE List</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                {% for column in table_columns %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_rows %}
+                <tr>
+                    {% for value in row.values() %}
+                        {% if value != value %} {# Check for NaN #}
+                            <td class="nan-cell">{{ value }}</td>
+                        {% else %}
+                            <td>{{ value }}</td>
+                        {% endif %}
+                    {% endfor %}
+                    <td><a href="{{ url_for('edit_owe', id=row['_id']) }}"><button>Edit</button></a> |
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('create_owe') }}"><button>New OWE</button></a>
+{% endblock %}

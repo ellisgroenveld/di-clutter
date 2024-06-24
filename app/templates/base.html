@@ -1,0 +1,78 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Project{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="nav-logo" width="50" height="50">
+        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('projects') }}">Projecten</a>
+            <a href="{{ url_for('overkoepelende_projects') }}">Overkoepelende Projecten</a>
+            <a href="{{ url_for('onderzoekers') }}">Onderzoekers</a>
+            <a href="{{ url_for('owe') }}">Onderwijs</a>
+            <a href="{{ url_for('configuration') }}">Configuration</a>
+            <a href="{{ url_for('downloads') }}">Download Data</a>
+        </div>
+    </nav>
+    <div class="red-bar"></div>
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+    <div class="red-bar"></div>
+    <!-- Footer -->
+    <footer>
+        <div>
+            <h1>Contact</h1> <br>
+            <p>Zuyd Hogeschool</p>
+            <p>Nieuw Eyckholt 300</p>
+            <p>Tel: <a href="tel:+31454006400">045 400 6400</a></p>
+            <p>E-mail: <a href="mailto:lectoraat.dataintelligence@zuyd.nl">lectoraat.dataintelligence@zuyd.nl</a></p>
+        </div>
+        <div>
+            <h1>Bezoekadres</h1> <br>
+            <p>Data Intelligence lab (dilab)</p>
+            <p><a href="https://maps.google.com?q=50.8827158,5.9729764" target="_blank">Brightlands Smart Services Campus<br>Smedestraat 2<br>6411 CR Heerlen</a></p>
+
+        </div>
+        <div>
+            <h1>Socials</h1>
+            <br>
+            <p>
+              <a href="https://www.youtube.com/@dilabzuyd" target="_blank">
+                <img src="{{ url_for('static', filename='youtube.svg') }}" alt="YouTube" class="social-icon"> YouTube
+              </a>
+            </p>
+            <p>
+              <a href="https://www.linkedin.com/company/lectoraat-data-intelligence/" target="_blank">
+                <img src="{{ url_for('static', filename='linkedin.svg') }}" alt="LinkedIn" class="social-icon"> LinkedIn
+              </a>
+            </p>
+            <p>
+              <a href="https://www.instagram.com/dilabzuyd/" target="_blank">
+                <img src="{{ url_for('static', filename='instagram.svg') }}" alt="Instagram" class="social-icon"> Instagram
+              </a>
+            </p>
+          </div>    
+    </footer>
+</body>
+</html>

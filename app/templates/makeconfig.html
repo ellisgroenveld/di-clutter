@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Make Configuration{% endblock %}
+
+{% block content %}
+<h1>Make Configuration</h1>
+<form action="{{ url_for('makeconfig') }}" method="POST">
+    <label for="attributename">Attribute Name:</label>
+    <input type="text" id="attributename" name="attributename" required><br><br>
+    
+    <label for="attributetype">Attribute Type:</label>
+    <select id="attributetype" name="attributetype" required>
+        {% for bson_type in bson_types %}
+            <option value="{{ bson_type }}">{{ bson_type }}</option>
+        {% endfor %}
+    </select> <br><br>
+    
+    <div id="array_input_container" style="display: none;">
+        <label for="array_contents">Array Contents:</label>
+        <div id="array_contents_container">
+            <input type="text" name="array_contents[]" required>
+        </div>
+        <br>
+        <button type="button" id="add_array_field">Add Another Entry</button>
+        <button type="button" id="remove_array_field">Remove Last Entry</button>
+    </div>
+    
+    <br><br>
+    
+    <label for="related_items">Select Related Collection:</label>
+    <select id="related_items" name="ConnectedCollection" required>
+        <option value="" disabled selected>Select Collection</option>
+        {% for collection in collections %}
+            <option value="{{ collection }}">{{ collection }}</option>
+        {% endfor %}
+    </select> <br><br>
+
+    <div class="checkbox-container">
+        <input type="checkbox" id="inuse_checkbox" name="inuse" checked>
+        <label for="inuse_checkbox">In Gebruik</label>
+    </div>
+
+    <button type="submit">Create Configuration</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var attributeTypeSelect = document.getElementById('attributetype');
+        var arrayInputContainer = document.getElementById('array_input_container');
+        var arrayInput = document.querySelector('input[name="array_contents[]"]');
+
+        // Show array input container if Array is selected initially
+        if (attributeTypeSelect.value === 'Array') {
+            arrayInputContainer.style.display = 'block';
+            arrayInput.required = true; // Set required initially
+        }
+
+        attributeTypeSelect.addEventListener('change', function() {
+            var selectedValue = this.value;
+            if (selectedValue === 'Array') {
+                arrayInputContainer.style.display = 'block';
+                arrayInput.required = true; // Set required if Array is selected
+            } else {
+                arrayInputContainer.style.display = 'none';
+                arrayInput.required = false; // Remove required if Array is not selected
+            }
+        });
+    });
+
+    document.getElementById('add_array_field').addEventListener('click', function() {
+        var container = document.createElement('div');
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'array_contents[]';
+        input.required = true; // Set required for new array fields
+        container.appendChild(input);
+        var lineBreak = document.createElement('br');
+        container.appendChild(lineBreak);
+        document.getElementById('array_contents_container').appendChild(container);
+    });
+
+    document.getElementById('remove_array_field').addEventListener('click', function() {
+        var container = document.getElementById('array_contents_container');
+        if (container.childElementCount > 1) {  // Ensure at least one input remains
+            container.removeChild(container.lastElementChild);  // Remove <br>
+            container.removeChild(container.lastElementChild);  // Remove <input>
+        }
+    });
+</script>
+
+{% endblock %}

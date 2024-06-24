@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Project{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Create Project</h1>
+    <form action="{{ url_for('create_project') }}" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="mb-3">
+            <label for="aanleiding" class="form-label">Aanleiding</label>
+            <textarea class="form-control" id="aanleiding" name="aanleiding" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="doelstelling" class="form-label">Doelstelling</label>
+            <textarea class="form-control" id="doelstelling" name="doelstelling" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="beoogd_resultaat" class="form-label">Beoogd Resultaat</label>
+            <textarea class="form-contcenterrol" id="beoogd_resultaat" name="beoogd_resultaat" rows="3" maxlength="350" required></textarea>
+        </div>        
+        <div class="mb-3">
+            <label for="studentid" class="form-label">Student ID</label>
+            <input type="text" class="form-control" id="studentid" name="studentid" required>
+        </div>
+        <div class="mb-3">
+            <label for="overkoepelende_project" class="form-label">Overkoepelende Project</label>
+            <select class="form-select" id="overkoepelende_project" name="overkoepelende_project" required>
+                {% for project in overkoepelende_projects %}
+                <option value="{{ project._id }}">{{ project.research_project }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="onderzoeker" class="form-label">Onderzoeker</label>
+            <select class="form-select" id="onderzoeker" name="onderzoeker" required>
+                {% for onderzoeker in onderzoekers %}
+                <option value="{{ onderzoeker._id }}">{{ onderzoeker.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="owe" class="form-label">OWE</label>
+            <select class="form-select" id="owe" name="owe" required>
+                {% for item in owe %}
+                <option value="{{ item._id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% for config in configurations %}
+            {% if config.type == "String" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="text" id="{{ config.name }}" name="{{ config.name }}"><br>
+            {% elif config.type == "Integer" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="number" id="{{ config.name }}" name="{{ config.name }}"><br>
+            {% elif config.type == "Double" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="number" id="{{ config.name }}" name="{{ config.name }}"><br>
+            {% elif config.type == "Boolean" %}
+                <input type="checkbox" id="{{ config.name }}" name="{{ config.name }}">
+                <label for="{{ config.name }}">{{ config.name }}</label><br>
+            {% elif config.type == "Date" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="date" id="{{ config.name }}" name="{{ config.name }}"><br>
+            {% elif config.type == "ObjectId" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="text" id="{{ config.name }}" name="{{ config.name }}"><br>
+            {% elif config.type == "Array" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <select name="{{ config.name }}">
+                    {% for option in config.ArrayContents %}
+                        <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                </select><br>
+            {% elif config.type == "Binary Data" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="file" id="{{ config.name }}" name="{{ config.name }}"><br>
+            {% elif config.type == "Undefined" %}
+                <!-- No input required for undefined -->
+            {% elif config.type == "Null" %}
+                <!-- No input required for null -->
+            {% endif %}
+        {% endfor %}
+        <div class="mb-3">
+            <label for="project_image" class="form-label">Project Image</label>
+            <input type="file" class="form-control" id="project_image" name="project_image" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+    </form>
+</div>
+{% endblock %}

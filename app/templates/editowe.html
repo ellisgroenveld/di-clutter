@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit OWE{% endblock %}
+
+{% block content %}
+    <h1>Edit OWE</h1>
+    <form action="{{ url_for('edit_owe', id=owe['_id']) }}" method="POST" enctype="multipart/form-data">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" value="{{ owe.name }}" required><br>
+        
+        <!-- Dynamically generate form fields for configurations -->
+        {% for config in configurations %}
+            {% if config.type == "String" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="text" id="{{ config.name }}" name="{{ config.name }}" value="{{ owe[config.name] }}"><br>
+            {% elif config.type == "Integer" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="number" id="{{ config.name }}" name="{{ config.name }}" value="{{ owe[config.name] }}"><br>
+            {% elif config.type == "Double" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="number" id="{{ config.name }}" name="{{ config.name }}" value="{{ owe[config.name] }}"><br>
+            {% elif config.type == "Boolean" %}
+                <input type="checkbox" id="{{ config.name }}" name="{{ config.name }}" {% if owe[config.name] %} checked {% endif %}>
+                <label for="{{ config.name }}">{{ config.name }}</label><br>
+            {% elif config.type == "Date" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="date" id="{{ config.name }}" name="{{ config.name }}" value="{{ project[config.name] }}"><br>
+            {% elif config.type == "ObjectId" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="text" id="{{ config.name }}" name="{{ config.name }}" value="{{ owe[config.name] }}"><br>
+            {% elif config.type == "Array" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <select name="{{ config.name }}">
+                    {% for option in config.ArrayContents %}
+                        <option value="{{ option }}" {% if option == owe[config.name] %} selected {% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select><br>
+            {% elif config.type == "Binary Data" %}
+                <label for="{{ config.name }}">{{ config.name }}:</label><br>
+                <input type="file" id="{{ config.name }}" name="{{ config.name }}"><br>
+            {% elif config.type == "Undefined" %}
+                <!-- No input required for undefined -->
+            {% elif config.type == "Null" %}
+                <!-- No input required for null -->
+            {% endif %}
+        {% endfor %}
+        <br>
+        <button type="submit">Update</button>
+    </form>
+{% endblock %}

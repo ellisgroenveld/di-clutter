@@ -1,47 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project List</title>
-</head>
-<body>
-    <h1>Project List</h1>
-    <a href="{{ url_for('create') }}"><button>Create New Project</button></a>
-    <a href="{{ url_for('github_repos') }}"><button>View GitHub Repositories</button></a>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Titel</th>
-                <th>Achtergrond</th>
-                <th>Doelstelling</th>
-                <th>Beoogd Resultaat</th>
-                <th>Overkoepelend Project</th>
-                <th>Onderwijs</th>
-                <th>Opmerkingen</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for project in projects %}
-            <tr>
-                <td>{{ project['Titel'] }}</td>
-                <td>{{ project['achtergrond'] }}</td>
-                <td>{{ project['doelstelling'] }}</td>
-                <td>{{ project['beoogd_resultaat'] }}</td>
-                <td>{{ project['overkoepelend_project'] }}</td>
-                <td>{{ project['onderwijs'] }}</td>
-                <td>{{ project['opmerkingen'] }}</td>
-                <td><a href="{{ url_for('edit', index=loop.index0) }}">Edit</a></td>
-                <td>
-                    <form action="{{ url_for('delete', index=loop.index0) }}" method="post">
-                        <button type="submit">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Project List{% endblock %}
+
+{% block content %}
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .grid-item {
+        border: 1px solid #ccc;
+        padding: 20px;
+        text-align: center;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+    }
+
+    .grid-item:hover {
+        transform: translateY(-5px);
+        background-color: #f4f8ff;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<div class="grid-container">
+    <div class="grid-item" onclick="window.location.href='{{ url_for('create_project') }}';">
+        <h2>Create Project</h2>
+        <p>Click here to create a new project.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('projects') }}';">
+        <h2>Manage Projects</h2>
+        <p>Click here to manage existing projects.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('configuration') }}';">
+        <h2>Manage Configurations</h2>
+        <p>Click here to manage configurations.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('owe') }}';">
+        <h2>Manage Onderwijseenheid</h2>
+        <p>Click here to manage onderwijseenheid.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('overkoepelende_projects') }}';">
+        <h2>Manage Overkoepelend Project</h2>
+        <p>Click here to manage overkoepelend project.</p>
+    </div>
+    <div class="grid-item" onclick="window.location.href='{{ url_for('onderzoekers') }}';">
+        <h2>Manage Onderzoekers</h2>
+        <p>Click here to manage onderzoekers.</p>
+    </div>
+    <div class="grid-item" onclick="window.open('https://github.com/Research-Center-Data-Intelligence', '_blank');">
+        <h2>Go to the GitHub</h2>
+        <p>Click here to go to the GitHub Org.</p>
+    </div>    
+</div>
+{% endblock %}

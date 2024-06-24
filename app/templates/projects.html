@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Project List{% endblock %}
+
+{% block content %}
+<style>
+/* Add any necessary styles */
+</style>
+
+<h1 class="centeredh1">Project List</h1>
+<div class="button-container">
+    <a href="{{ url_for('create_project') }}"><button>New Project</button></a>
+</div>
+
+<div class="view-toggle">
+    <button onclick="toggleView('grid')">Grid View</button>
+    <button onclick="toggleView('table')">Table View</button>
+</div>
+
+<div class="filter-container">
+    <label for="project-filter">Filter by Overkoepelende Project:</label>
+    <select id="project-filter" onchange="filterProjects()">
+        <option value="all">All</option>
+        {% for overproject in overprojects %}
+        <option value="{{ overproject['research_project'] }}">{{ overproject['research_project'] }}</option>
+        {% endfor %}
+    </select>
+</div> <br> <br>
+
+<div id="project-grid" class="project-grid">
+    {% for row in table_rows %}
+    <div class="project-square" data-overkoepelende-project="{{ row.overkoepelende_project }}">
+        {% if row['_id'] %}
+        <a href="{{ url_for('project_details', id=row['_id']) }}"></a>
+        {% endif %}
+        {% if row.imagepath is string %}
+        {% set image_filename = 'temp/' + row.imagepath %}
+        <img src="{{ url_for('static', filename=image_filename) }}" alt="Project Image" class="project-image">
+        {% else %}
+        <img src="{{ url_for('static', filename='placeholder.webp') }}" alt="Project Image" class="project-image"> 
+        {% endif %}
+
+        <div class="project-title {% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            {{ row.title if row.title else 'NaN' }}
+        </div>
+        <div class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Overkoepelende Project:</strong> {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
+        </div>
+        <div class="{% if row.owe == none or row.owe == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Onderwijseenheid:</strong> {{ row.owe if row.owe else 'NaN' }}
+        </div>
+        <div class="{% if row.onderzoeker == none or row.onderzoeker == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+            <strong>Onderzoeker:</strong> {{ row.onderzoeker if row.onderzoeker else 'NaN' }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<table id="project-table" class="project-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Onderwijseenheid</th>
+            <th>Overkoepelende Project</th>
+            <th>Onderzoeker</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table_rows %}
+        <tr class="clickable-row" data-overkoepelende-project="{{ row.overkoepelende_project }}" onclick="window.location.href='{{ url_for('project_details', id=row['_id']) }}'">
+            <td class="{% if row.title == none or row.title == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+                {{ row.title if row.title else 'NaN' }}
+            </td>
+            <td class="{% if row.owe == none or row.owe == 'NaN' or row.owe == 'nan' %} nan-cell {% endif %}">
+                {{ row.owe if row.owe else 'NaN' }}
+            </td>
+            <td class="{% if row.overkoepelende_project == none or row.overkoepelende_project == 'NaN' or row.title == 'nan' %} nan-cell {% endif %}">
+                {{ row.overkoepelende_project if row.overkoepelende_project else 'NaN' }}
+            </td>
+            <td class="{% if row.onderzoeker == none or row.onderzoeker == 'NaN' or row.onderzoeker == 'nan' %} nan-cell {% endif %}">
+                {{ row.onderzoeker if row.onderzoeker else 'NaN' }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    function toggleView(view) {
+        var grid = document.getElementById('project-grid');
+        var table = document.getElementById('project-table');
+        if (view === 'grid') {
+            grid.style.display = 'grid';
+            table.style.display = 'none';
+        } else {
+            grid.style.display = 'none';
+            table.style.display = 'table';
+        }
+    }
+
+    function filterProjects() {
+        var filterValue = document.getElementById('project-filter').value;
+        var gridProjects = document.querySelectorAll('#project-grid .project-square');
+        var tableProjects = document.querySelectorAll('#project-table tbody tr');
+
+        gridProjects.forEach(function(project) {
+            if (filterValue === 'all' || project.getAttribute('data-overkoepelende-project') === filterValue) {
+                project.style.display = 'block';
+            } else {
+                project.style.display = 'none';
+            }
+        });
+
+        tableProjects.forEach(function(project) {
+            if (filterValue === 'all' || project.getAttribute('data-overkoepelende-project') === filterValue) {
+                project.style.display = 'table-row';
+            } else {
+                project.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

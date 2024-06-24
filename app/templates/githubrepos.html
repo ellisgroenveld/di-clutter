@@ -1,23 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Repositories</title>
-</head>
+{% extends 'base.html' %}
+
+{% block title %}GitHub Repo Projects - DI Clutter{% endblock %}
+
+{% block content %}
 <body>
-    <h1>GitHub Repositories</h1>
+    <h1>GitHub Repositories in org DIClutter</h1>
     <table border="1">
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Description</th>
+                <th>Description</th> <!-- Changed to Description -->
                 <th>URL</th>
                 <th>Owner</th>
                 <th>Access</th>
                 <th>Language</th>
-                <th>Contributors</th>
                 <th>Topics</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -29,11 +27,15 @@
                 <td>{{ repo.owner.login }}</td>
                 <td>{{ "Private" if repo.private else "Public" }}</td>
                 <td>{{ repo.language }}</td>
-                <td>{{ ', '.join(repo.contributors) }}</td>
                 <td>{{ ', '.join(repo.topics) }}</td>
+                <td>
+                    <form action="{{ url_for('delete_repo', repo_url=repo.html_url) }}" method="post">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </body>
-</html>
+{% endblock %}

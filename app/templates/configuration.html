@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Configuration List{% endblock %}
+
+{% block content %}
+    <style>
+        .nan-cell {
+            color: red; /* Set the color to red */
+        }
+    </style>
+    
+    <h1>Configuration List</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                {% for column in table_columns %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_rows %}
+                <tr>
+                    {% for value in row.values() %}
+                        {% if value != value %} {# Check for NaN #}
+                            <td class="nan-cell">{{ value }}</td>
+                        {% else %}
+                            <td>{{ value }}</td>
+                        {% endif %}
+                    {% endfor %}
+                    <td>
+                        <a href="{{ url_for('editconfig', id=row['_id']) }}"><button>Edit</button></a> |
+                        <form action="{{ url_for('config_inuse', id=row['_id']) }}" method="post" style="display: inline;">
+                            <button type="submit">
+                                {% if row.get('inuse') != row.get('inuse') or not row.get('inuse', False) %}
+                                    Set Active
+                                {% else %}
+                                    Set Inactive
+                                {% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('makeconfig') }}"><button>Make Configuration</button></a> <br>
+{% endblock %}
