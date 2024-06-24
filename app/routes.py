@@ -4,6 +4,7 @@ from ghapi.all import GhApi
 import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from pymongo import ReturnDocument
 from bson.objectid import ObjectId
 import pandas as pd
 from email_validator import validate_email, EmailNotValidError
@@ -66,6 +67,16 @@ def convert_image_to_webp(image_stream):
     img.save(webp_io, format='webp', quality=60)
     webp_io.seek(0)
     return webp_io.read()
+
+def get_next_project_code():
+    counter = db.counters.find_one_and_update(
+        {'_id': 'project_id'},
+        {'$inc': {'sequence_value': 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER
+    )
+    return counter['sequence_value']
+
 
 
 @app.route('/')
@@ -165,7 +176,9 @@ def create_project():
 
         repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        db.projects.insert_one({'title': name, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
+        project_code = get_next_project_code()
+
+        db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
 
         return redirect(url_for('projects'))
     else:
