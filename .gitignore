@@ -1,3 +1,96 @@
-.env
+# Byte-compiled / optimized / DLL files
 __pycache__/
-app/__pycache__/
+*.py[cod]
+*$py.class
+
+# pytest
+.cache/
+*.pytest_cache
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# mypy
+.mypy_cache/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Flask config
+config.py
+
+# Pytest
+.pytest_cache/
+test_integration.cpython-312-pytest-8.2.1.pyc
+test_routes.cpython-312-pytest-8.2.1.pyc
+
+# Static files
+app/static/temp/
+
+# IDEs
+.vscode/
+.idea/
