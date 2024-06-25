@@ -1,5 +1,3 @@
-### README.md
-
 # Di-Clutter Flask Applicatie
 
 ## Overzicht
