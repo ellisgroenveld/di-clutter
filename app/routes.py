@@ -77,6 +77,29 @@ def get_next_project_code():
     )
     return counter['sequence_value']
 
+def get_next_overproject_code():
+    counter = db.counters.find_one_and_update(
+        {'_id': 'overproject_id'},
+        {'$inc': {'sequence_value': 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER
+    )
+    return counter['sequence_value']
+
+
+def format_studentproject_number(number):
+    if not (0 <= number < 10000):
+        raise ValueError("Number must be between 0 and 9999")
+    formatted_number = f"S-{number:04d}"
+    return formatted_number
+
+
+def format_overproject_number(number):
+    if not (0 <= number < 10000):
+        raise ValueError("Number must be between 0 and 9999")
+    formatted_number = f"R-{number:04d}"
+    return formatted_number
+
 
 
 @app.route('/')
@@ -176,7 +199,7 @@ def create_project():
 
         repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        project_code = get_next_project_code()
+        project_code = format_studentproject_number(get_next_project_code())
 
         db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
 
@@ -577,7 +600,9 @@ def create_overkoepelende_project():
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
 
-        db.overkoepelende_projects.insert_one({'research_project': research_project, **dynamic_fields})
+        researchprojectcode = format_overproject_number(get_next_overproject_code())
+
+        db.overkoepelende_projects.insert_one({'research_project': research_project,'research_project_code' : researchprojectcode,**dynamic_fields})
         return redirect(url_for('overkoepelende_projects'))
     else:
         return render_template('createover.html', configurations=configurations)
