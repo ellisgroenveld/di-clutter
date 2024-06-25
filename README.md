@@ -111,6 +111,7 @@ Om verbinding te maken met MongoDB, dien je de juiste inloggegevens (gebruikersn
      ```
      MONGODB_USERNAME=<jouw-mongodb-gebruikersnaam>
      MONGODB_PASSWORD=<jouw-mongodb-wachtwoord>
+     MONGODB_SERVER=<jouw-mongodb-server>
      ```
    - Sla het `.env` bestand op. Dit bestand wordt gebruikt om gevoelige informatie zoals inloggegevens buiten je broncode op te slaan.
 
@@ -122,6 +123,7 @@ Om verbinding te maken met MongoDB, dien je de juiste inloggegevens (gebruikersn
      # Load MongoDB credentials from environment variables
      mongodb_username = os.environ.get('MONGODB_USERNAME')
      mongodb_password = os.environ.get('MONGODB_PASSWORD')
+     mongodb_server = os.environ.get('MONGODB_SERVER')
      ```
 
 4. **Gebruik van MongoDB**

@@ -37,9 +37,10 @@ bson_types = [
 # Load MongoDB credentials from environment variables
 mongodb_username = os.environ.get('MONGODB_USERNAME')
 mongodb_password = os.environ.get('MONGODB_PASSWORD')
+mongodb_server = os.environ.get('MONGODB_SERVER')
 
 # MongoDB connection URI
-uri = f"mongodb+srv://{mongodb_username}:{mongodb_password}@cluster0.c80whlg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+uri = f"mongodb+srv://{mongodb_username}:{mongodb_password}@{mongodb_server}"
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
