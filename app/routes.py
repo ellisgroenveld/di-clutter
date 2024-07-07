@@ -34,16 +34,10 @@ bson_types = [
     "Null"
 ]
 
-# Load MongoDB credentials from environment variables
-mongodb_username = os.environ.get('MONGODB_USERNAME')
-mongodb_password = os.environ.get('MONGODB_PASSWORD')
-mongodb_server = os.environ.get('MONGODB_SERVER')
-
-# MongoDB connection URI
-uri = f"mongodb+srv://{mongodb_username}:{mongodb_password}@{mongodb_server}"
+mongodb_uri = os.environ.get('MONGODB_URI')
 
 # Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi('1'))
+client = MongoClient(mongodb_uri)
 db = client['projectdatabase']
 
 # Send a ping to confirm a successful connection

@@ -7,7 +7,7 @@ Di-Clutter is een webapplicatie ontwikkeld met Flask. Deze applicatie biedt func
 
 ### Vereisten
 Zorg ervoor dat je de volgende software op je systeem hebt geïnstalleerd:
-- Python 3.12+
+- Python 3.11+ (liefst 3.12+)
 - pip (Python package installer)
 
 ### Stappen
@@ -213,11 +213,10 @@ Als je MongoDB op een andere manier wilt inzetten, zoals via een Docker-containe
 
 1. **Maak een `.env` Bestand aan**:
    - Maak een bestand genaamd `.env` in de hoofdmap van je project.
-   - Voeg de volgende regels toe aan het `.env` bestand:
+   - Dit bestand is de volledige url die is opgebouwd voor een verbinding in het format `mongodb://$USERNAME:$PASSWORD@$SERVERURL`
+   - Zo is dit een voorbeeld van een regel om toe te veogen aan het `.env` bestand:
      ```plaintext
-     MONGODB_USERNAME=$USERNAME
-     MONGODB_PASSWORD=$PASSWORD
-     MONGODB_SERVER=localhost:27017 # als je lokaal werkt
+     MONGODB_URI=mongodb://myusername:mypassword@localhost:27017
      ```
 
 #### Stap 4: Integratie in de Code
@@ -229,24 +228,14 @@ Als je MongoDB op een andere manier wilt inzetten, zoals via een Docker-containe
      from pymongo import MongoClient
      from pymongo.server_api import ServerApi
 
-     # Laad MongoDB inloggegevens uit omgevingsvariabelen
-     mongodb_username = os.environ.get('MONGODB_USERNAME')
-     mongodb_password = os.environ.get('MONGODB_PASSWORD')
-     mongodb_server = os.environ.get('MONGODB_SERVER')
-
-     # MongoDB verbinding URI
-     uri = f"mongodb://{mongodb_username}:{mongodb_password}@{mongodb_server}"
-
-     # Maak een nieuwe client en verbind met de server
-     client = MongoClient(uri, server_api=ServerApi('1'))
+     mongodb_uri = os.environ.get('MONGODB_URI')
+     client = MongoClient(mongodb_uri)
      db = client['projectdatabase']
-
-     # Verzend een ping om een succesvolle verbinding te bevestigen
      try:
-         client.admin.command('ping')
-         print("Pinged your deployment. You successfully connected to MongoDB!")
+      client.admin.command('ping')
+      print("Pinged your deployment. You successfully connected to MongoDB!")
      except Exception as e:
-         print(e)
+      print(e)
      ```
 
 #### Belangrijke Opmerkingen
