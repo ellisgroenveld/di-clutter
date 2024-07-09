@@ -454,3 +454,8 @@ select-container {
     position: relative;
     display: inline-block;
 }
+
+
+input[type="checkbox"] {
+    width: 20px;
+}
