@@ -52,7 +52,7 @@
         </div>
         <div class="mb-3">
             <label for="githubenabled" class="form-label">GitHub Aanzetten</label>
-            <input type="checkbox" checked name="githubenabled" id="githubenabled">
+            <input type="checkbox" checked name="githubenabled" id="githubenabled" onclick="toggleGitHubEntry()">
         </div>
         <div class="mb-3" style="display: none;" id="githubrepodiv">
             <label for="githubrepo" class="form-label">GitHub Repo</label>
@@ -103,10 +103,12 @@
 
 
 <script>
-    if (document.getElementById("githubenabled").checked) {
-        document.getElementById("githubrepodiv").style.display = "none";
-    } else {
-        document.getElementById("githubrepodiv").style.display = "block";
+    function toggleGitHubEntry() {
+        if (document.getElementById("githubenabled").checked) {
+            document.getElementById("githubrepodiv").style.display = "none";
+        } else {
+            document.getElementById("githubrepodiv").style.display = "block";
+        }
     }
 </script>
 {% endblock %}
