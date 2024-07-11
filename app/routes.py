@@ -228,8 +228,11 @@ def edit_project(id):
         githubrepo = request.form['githubrepo']
         
         # Remove ending slashes before saving. If we do not do this, the application will have issues later, because it finds the organization and reposituory based on seperating on slashes.
-        if githubrepo[-1] == "/":
-            githubrepo = githubrepo[:-1]
+        try:
+            if githubrepo[-1] == "/":
+                githubrepo = githubrepo[:-1]
+        except:
+            pass
 
         dynamic_fields = {}
         for config in configurations:
