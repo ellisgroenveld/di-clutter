@@ -568,7 +568,7 @@ def overkoepelende_projects():
 def create_overkoepelende_project():
     configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'overkoepelende_projects'})  # Fetch configurations where inuse=True
     if request.method == 'POST':
-        research_project = request.form['researchproject']
+        research_project = request.form['research_project']
 
         # Check for duplicate research_project
         if db.overkoepelende_projects.find_one({'research_project': research_project}):
@@ -610,10 +610,11 @@ def create_overkoepelende_project():
 @app.route('/edit_overkoepelende_project/<string:id>', methods=['GET', 'POST'])
 def edit_overkoepelende_project(id):
     project = db.overkoepelende_projects.find_one({'_id': ObjectId(id)})
+    print(project)
     configurations = db.configurations.find({'inuse': True, 'ConnectedCollection': 'overkoepelende_projects'})
     
     if request.method == 'POST':
-        research_project = request.form['researchproject']
+        research_project = request.form['research_project']
         
         # Check for duplicate research_project
         existing_project = db.overkoepelende_projects.find_one({'research_project': research_project})
@@ -624,16 +625,32 @@ def edit_overkoepelende_project(id):
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
-            if attribute_name in project:
-                attribute_type = config['type']
-                if attribute_type in ['String', 'Integer', 'Double', 'Boolean', 'Date', 'ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
-                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+
         dynamic_fields['research_project'] = research_project
         db.overkoepelende_projects.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
         return redirect(url_for('overkoepelende_projects'))
     else:
-        if 'research_project' not in project:
-            project['research_project'] = ''
         return render_template('editover.html', project=project, configurations=configurations)
 
 
@@ -712,21 +729,28 @@ def edit_owe(id):
         dynamic_fields = {}
         for config in configurations:
             attribute_name = config['name']
-            if attribute_name in owe:
-                attribute_type = config['type']
-                if attribute_type == 'String':
-                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
-                elif attribute_type == 'Integer':
-                    dynamic_fields[attribute_name] = int(request.form.get(attribute_name))
-                elif attribute_type == 'Double':
-                    dynamic_fields[attribute_name] = float(request.form.get(attribute_name))
-                elif attribute_type == 'Boolean':
-                    dynamic_fields[attribute_name] = request.form.get(attribute_name) == 'on'
-                elif attribute_type == 'Date':
-                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
-                elif attribute_type in ['ObjectId', 'Array', 'Binary Data', 'Undefined', 'Null']:
-                    dynamic_fields[attribute_name] = request.form.get(attribute_name)
-        
+            attribute_type = config['type']
+            if attribute_type == 'String':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Integer':
+                dynamic_fields[attribute_name] = int(request.form[attribute_name])
+            elif attribute_type == 'Double':
+                dynamic_fields[attribute_name] = float(request.form[attribute_name])
+            elif attribute_type == 'Boolean':
+                dynamic_fields[attribute_name] = bool(request.form.get(attribute_name))
+            elif attribute_type == 'Date':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'ObjectId':
+                dynamic_fields[attribute_name] = ObjectId(request.form[attribute_name])
+            elif attribute_type == 'Array':
+                dynamic_fields[attribute_name] = request.form[attribute_name]
+            elif attribute_type == 'Binary Data':
+                dynamic_fields[attribute_name] = request.files[attribute_name].read()
+            elif attribute_type == 'Undefined':
+                dynamic_fields[attribute_name] = None
+            elif attribute_type == 'Null':
+                dynamic_fields[attribute_name] = None
+
         dynamic_fields['name'] = name
         db.owe.update_one({'_id': ObjectId(id)}, {'$set': dynamic_fields})
         return redirect(url_for('owe'))  # Change to your actual OWE list route

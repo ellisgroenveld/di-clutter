@@ -5,8 +5,8 @@
 {% block content %}
     <h1>Create Overkoepelende Project</h1>
     <form action="{{ url_for('create_overkoepelende_project') }}" method="POST">
-        <label for="researchproject">Research Project:</label><br>
-        <input type="text" id="researchproject" name="researchproject"/><br>
+        <label for="research_project">Research Project:</label><br>
+        <input type="text" id="research_project" name="research_project"/><br>
 
         <!-- Dynamically generate form fields for configurations -->
         {% for config in configurations %}
