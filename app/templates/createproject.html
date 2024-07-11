@@ -52,7 +52,11 @@
         </div>
         <div class="mb-3">
             <label for="githubenabled" class="form-label">GitHub Aanzetten</label>
-            <input type="checkbox" checked name="githubenabled">
+            <input type="checkbox" checked name="githubenabled" id="githubenabled">
+        </div>
+        <div class="mb-3" style="display: none;" id="githubrepodiv">
+            <label for="githubrepo" class="form-label">GitHub Repo</label>
+            <input type="text" class="form-control" id="githubrepo" name="githubrepo">
         </div>
         {% for config in configurations %}
             {% if config.type == "String" %}
@@ -96,4 +100,13 @@
         <button type="submit" class="btn btn-primary">Create Project</button>
     </form>
 </div>
+
+
+<script>
+    if (document.getElementById("githubenabled").checked) {
+        document.getElementById("githubrepodiv").style.display = "none";
+    } else {
+        document.getElementById("githubrepodiv").style.display = "block";
+    }
+</script>
 {% endblock %}

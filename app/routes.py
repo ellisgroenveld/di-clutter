@@ -198,7 +198,8 @@ def create_project():
 
             db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
         else:
-            db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
+            githubrepo = request.form.get('githubrepo')
+            db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': githubrepo, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
         
 
         
@@ -224,6 +225,11 @@ def edit_project(id):
         selected_overkoepelende_project = request.form['overkoepelende_project']
         selected_onderzoeker = request.form['onderzoeker']
         selected_owe = request.form['owe']
+        githubrepo = request.form['githubrepo']
+        
+        # Remove ending slashes before saving. If we do not do this, the application will have issues later, because it finds the organization and reposituory based on seperating on slashes.
+        if githubrepo[-1] == "/":
+            githubrepo = githubrepo[:-1]
 
         dynamic_fields = {}
         for config in configurations:
@@ -250,7 +256,7 @@ def edit_project(id):
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
 
-        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, **dynamic_fields}})
+        db.projects.update_one({'_id': ObjectId(id)}, {'$set': {'title': name, 'beoogd_resultaat': beoogd_resultaat, 'aanleiding': aanleiding, 'doelstelling': doelstelling, 'studentid': studentid, 'githubrepo': githubrepo, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, **dynamic_fields}})
         return redirect(url_for('projects'))
     else:
         return render_template('editproject.html', project=project, configurations=configurations, overkoepelende_projects=overkoepelende_projects, onderzoekers=onderzoekers, owe=owe)
@@ -309,26 +315,31 @@ def project_details(id):
         project['owe'] = owe_obj
     
     if 'githubrepo' in project:
-        token = os.environ.get('GH_TOKEN2')
-        gh = GhApi(token=token)
-        
-        github_url = project['githubrepo']
-        owner, repo_name = github_url.split('/')[-2:]
+        try:
+            token = os.environ.get('GH_TOKEN2')
+            gh = GhApi(token=token)
+            
+            github_url = project['githubrepo']
+            owner, repo_name = github_url.split('/')[-2:]
 
-        repo = gh.repos.get(owner=owner, repo=repo_name)
+            repo = gh.repos.get(owner=owner, repo=repo_name)
 
-        contributors = gh.repos.list_contributors(owner=owner, repo=repo_name)
-        contributors_list = [contributor.login for contributor in contributors]
+            contributors = gh.repos.list_contributors(owner=owner, repo=repo_name)
+            contributors_list = [contributor.login for contributor in contributors]
 
-        project['github_info'] = {
-            'name': repo.name,
-            'description': repo.description,
-            'owner': repo.owner.login,
-            'visibility': 'Private' if repo.private else 'Public',
-            'language': repo.language,
-            'contributors': contributors_list,
-            'topics': ', '.join(repo.topics)
-        }
+            project['github_info'] = {
+                'name': repo.name,
+                'description': repo.description,
+                'owner': repo.owner.login,
+                'visibility': 'Private' if repo.private else 'Public',
+                'language': repo.language,
+                'contributors': contributors_list,
+                'topics': ', '.join(repo.topics)
+            }
+        except:
+            project['github_info'] = { 'Info' : 'Github Repository Not Found'}
+    else:
+        project['github_info'] = { 'Info' : 'Github Repository Not Found'}
     
     
     return render_template('projectdetails.html', project=project)

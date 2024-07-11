@@ -50,6 +50,10 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="mb-3">
+            <label for="githubrepo" class="form-label">GitHub Link</label>
+            <input type="text" class="form-control" id="githubrepo" name="githubrepo" value="{{ project.githubrepo }}">
+        </div>
         {% for config in configurations %}
         <div class="mb-3">
             <label for="{{ config.name }}" class="form-label">{{ config.name }}</label>
