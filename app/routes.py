@@ -270,21 +270,23 @@ def delete_project(id):
     project = db.projects.find_one({'_id': ObjectId(id)})
     if not project:
         return "Project not found", 404
+    
+    #COMMENT CODE BELOW IS USED TO DELETE A REPOSITORY WHEN DELETING A PROJECT. ITS VERY SUS.
 
-    github_repo_url = project.get('githubrepo')
+    # github_repo_url = project.get('githubrepo')
 
-    if github_repo_url:
-        parts = github_repo_url.split('/')
-        owner = parts[-2]
-        repo_name = parts[-1]
+    # if github_repo_url:
+    #     parts = github_repo_url.split('/')
+    #     owner = parts[-2]
+    #     repo_name = parts[-1]
 
-        token = os.environ.get('GH_TOKEN2')
-        gh = GhApi(token=token)
+    #     token = os.environ.get('GH_TOKEN2')
+    #     gh = GhApi(token=token)
 
-        try:
-            gh.repos.delete(owner=owner, repo=repo_name)
-        except Exception as e:
-            return f"Failed to delete repository from GitHub: {str(e)}", 500
+    #     try:
+    #         gh.repos.delete(owner=owner, repo=repo_name)
+    #     except Exception as e:
+    #         return f"Failed to delete repository from GitHub: {str(e)}", 500
 
     db.projects.delete_one({'_id': ObjectId(id)})
 
