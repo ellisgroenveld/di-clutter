@@ -180,6 +180,8 @@ def create_project():
         project_image = request.files.get('project_image')
         image_binary = convert_image_to_webp(project_image.stream)
 
+        project_code = format_studentproject_number(get_next_project_code())
+
         if request.form.get('githubenabled'): 
             private = True
             auto_init = True
@@ -194,9 +196,12 @@ def create_project():
 
             repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
-        project_code = format_studentproject_number(get_next_project_code())
+            db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
+        else:
+            db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
+        
 
-        db.projects.insert_one({'title': name, 'projectcode' : project_code,'aanleiding': aanleiding, 'doelstelling': doelstelling, 'beoogd_resultaat': beoogd_resultaat, 'studentid': studentid, 'githubrepo': repo.html_url, 'overkoepelende_project': selected_overkoepelende_project, 'onderzoeker': selected_onderzoeker, 'owe': selected_owe, 'project_image': image_binary, **dynamic_fields})
+        
 
         return redirect(url_for('projects'))
     else:
