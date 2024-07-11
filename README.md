@@ -80,9 +80,10 @@ Om toegang te krijgen tot de GitHub API, heb je een geldige API-sleutel nodig. V
 
 2. **Voeg de Token toe aan je Omgevingsvariabelen**
    - Maak een bestand aan met de naam `.env` in de hoofdmap van je project, als dit nog niet bestaat.
-   - Voeg de gegenereerde token toe aan dit bestand als volgt:
+   - Voeg de gegenereerde token en de GitHub Organisatie toe aan dit bestand als volgt:
      ```
      GH_TOKEN2=<jouw-github-token>
+     GH_ORG=<jouw-github-organisatie>
      ```
    - Sla het `.env` bestand op. Dit bestand wordt gebruikt om gevoelige informatie zoals API-sleutels buiten je broncode op te slaan.
 
@@ -93,6 +94,7 @@ Om toegang te krijgen tot de GitHub API, heb je een geldige API-sleutel nodig. V
      from ghapi.all import GhApi
 
      token = os.environ.get('GH_TOKEN2')
+     org = os.environment.get('GH_ORG')
      gh = GhApi(token=token)
      ```
 

@@ -50,6 +50,10 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="mb-3">
+            <label for="githubenabled" class="form-label">GitHub Aanzetten</label>
+            <input type="checkbox" checked name="githubenabled">
+        </div>
         {% for config in configurations %}
             {% if config.type == "String" %}
                 <label for="{{ config.name }}">{{ config.name }}:</label><br>

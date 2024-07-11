@@ -177,22 +177,22 @@ def create_project():
                 dynamic_fields[attribute_name] = None
             elif attribute_type == 'Null':
                 dynamic_fields[attribute_name] = None
-            
         project_image = request.files.get('project_image')
         image_binary = convert_image_to_webp(project_image.stream)
 
-        private = True
-        auto_init = True
+        if request.form.get('githubenabled'): 
+            private = True
+            auto_init = True
 
-        gh = GhApi(token=os.environ.get('GH_TOKEN2'))
-        org = 'DIClutter'
+            gh = GhApi(token=os.environ.get('GH_TOKEN2'))
+            org = os.environ.get('GH_ORG')
 
-        repos = gh.repos.list_for_org(org)
-        if any(repo.name == name for repo in repos):
-            error_message = f"Repository '{name}' already exists in the organization."
-            return render_template('error.html', error_message=error_message)
+            repos = gh.repos.list_for_org(org)
+            if any(repo.name == name for repo in repos):
+                error_message = f"Repository '{name}' already exists in the organization."
+                return render_template('error.html', error_message=error_message)
 
-        repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
+            repo = gh.repos.create_in_org(org, name=name, description=beoogd_resultaat, private=private, auto_init=auto_init)
 
         project_code = format_studentproject_number(get_next_project_code())
 
@@ -741,7 +741,7 @@ def github_repos():
 
     gh = GhApi(token=token)
 
-    org = 'DIClutter'
+    org = os.environ.get('GH_ORG')
 
     repos = gh.repos.list_for_org(org)
 
@@ -783,7 +783,7 @@ def downloadexcel():
     gh = GhApi()
     token = os.environ.get('GH_TOKEN2')
     gh = GhApi(token=token)
-    org = 'DIClutter'
+    org = os.environ.get('GH_ORG')
     repos = gh.repos.list_for_org(org)
 
     excel_buffer = io.BytesIO()
